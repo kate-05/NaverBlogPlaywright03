@@ -275,6 +275,25 @@ class MainWindow:
             messagebox.showerror("오류", error_msg)
             return
         
+        # 위젯 변수를 미리 읽어서 저장 (스레드 안전을 위해)
+        self.crawl_params = {
+            'resume_mode': self.resume_var.get(),
+            'blog_ids': [],
+            'checkpoint_path': ''
+        }
+        
+        if self.crawl_params['resume_mode']:
+            self.crawl_params['checkpoint_path'] = self.checkpoint_path_var.get()
+        else:
+            if self.input_method.get() == "single":
+                blog_id = self.blog_id_entry.get().strip()
+                if blog_id:
+                    self.crawl_params['blog_ids'] = [blog_id]
+            else:
+                file_path = self.file_path_var.get()
+                if file_path:
+                    self.crawl_params['blog_ids'] = self.load_blog_ids_from_file(file_path)
+        
         # 진행 상황 화면으로 전환
         self.show_progress_screen()
     
@@ -380,11 +399,15 @@ class MainWindow:
     def crawl_worker(self):
         """크롤링 워커 스레드"""
         try:
-            # 블로그 ID 목록 준비
-            blog_ids = []
-            if self.resume_var.get():
+            # 미리 읽은 파라미터 사용 (스레드 안전)
+            params = getattr(self, 'crawl_params', {})
+            resume_mode = params.get('resume_mode', False)
+            blog_ids = params.get('blog_ids', [])
+            checkpoint_path = params.get('checkpoint_path', '')
+            
+            # 크롤링 시작
+            if resume_mode:
                 # 재개 모드
-                checkpoint_path = self.checkpoint_path_var.get()
                 output_path = f"output/crawl_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                 
                 self.log_message("체크포인트에서 크롤링 재개 중...")
@@ -395,12 +418,13 @@ class MainWindow:
                     delay=0.5,
                     timeout=30
                 )
+                total_blogs = 0
             else:
                 # 새로 시작
-                if self.input_method.get() == "single":
-                    blog_ids = [self.blog_id_entry.get().strip()]
-                else:
-                    blog_ids = self.load_blog_ids_from_file(self.file_path_var.get())
+                if not blog_ids:
+                    self.log_message("블로그 ID를 입력해주세요.", True)
+                    self.root.after(0, self.show_main_screen)
+                    return
                 
                 output_path = f"output/crawl_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                 
@@ -414,14 +438,16 @@ class MainWindow:
                     timeout=30,
                     should_stop=self.should_stop
                 )
+                total_blogs = len(blog_ids)
             
             self.log_message("크롤링 완료!")
             # 메인 스레드에서 결과 화면 표시
-            self.root.after(0, lambda: self.show_result_screen(output_path, len(blog_ids) if not self.resume_var.get() else 0))
+            self.root.after(0, lambda: self.show_result_screen(output_path, total_blogs))
             
         except Exception as e:
             import traceback
             error_msg = str(e)
+            traceback.print_exc()
             self.log_message(f"오류 발생: {error_msg}", True)
             # 메인 스레드에서 에러 다이얼로그 표시
             self.root.after(0, lambda: messagebox.showerror("오류", f"크롤링 중 오류가 발생했습니다:\n{error_msg}"))
