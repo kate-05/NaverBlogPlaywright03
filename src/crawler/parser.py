@@ -357,7 +357,9 @@ def extract_content(page: Page) -> PostContent:
                     '.area_view',
                     '.post-view',
                     'article',
-                    '.post_body'
+                    '.post_body',
+                    '.post_ct',
+                    '.post-view-box'
                 ];
                 
                 for (const sel of selectors) {
@@ -368,6 +370,51 @@ def extract_content(page: Page) -> PostContent:
                         if (text.length > 50) {
                             container = elem;
                             break;
+                        }
+                    }
+                }
+            }
+            
+            // 본문 영역 직접 찾기 (특정 클래스나 구조로)
+            if (!container || (container === document.body && container.textContent.length > 1000)) {
+                // 방법 1: 제목 다음부터 본문 시작하는 경우
+                const postSubject = document.querySelector('.post_subject, h1.post_subject');
+                if (postSubject) {
+                    // 제목 다음 형제 요소들에서 본문 찾기
+                    let nextSibling = postSubject.nextElementSibling;
+                    while (nextSibling) {
+                        const text = (nextSibling.textContent || '').trim();
+                        if (text.length > 50 && !text.includes('이웃추가') && !text.includes('공유하기') && !text.includes('로그인')) {
+                            container = nextSibling;
+                            break;
+                        }
+                        nextSibling = nextSibling.nextElementSibling;
+                    }
+                }
+                
+                // 방법 2: "신고하기" 버튼 다음 요소들 중 본문 찾기
+                if (!container || container === document.body) {
+                    const reportButtons = document.querySelectorAll('button, .btn, a');
+                    for (const btn of reportButtons) {
+                        const btnText = (btn.textContent || '').trim();
+                        if (btnText.includes('신고하기')) {
+                            // 신고하기 버튼 다음 형제 요소들 찾기
+                            let nextSibling = btn.parentElement || btn;
+                            while (nextSibling && nextSibling.nextElementSibling) {
+                                nextSibling = nextSibling.nextElementSibling;
+                                const text = (nextSibling.textContent || '').trim();
+                                // 본문인지 확인 (50자 이상, 제외 텍스트 없음)
+                                if (text.length > 50 && 
+                                    !text.includes('이웃추가') && 
+                                    !text.includes('공유하기') && 
+                                    !text.includes('로그인') &&
+                                    !text.includes('카테고리') &&
+                                    !text.includes('PC버전')) {
+                                    container = nextSibling;
+                                    break;
+                                }
+                            }
+                            if (container && container !== document.body) break;
                         }
                     }
                 }
@@ -389,7 +436,47 @@ def extract_content(page: Page) -> PostContent:
                 '.sidebar', '.side', '.widget',
                 '.btn', '.button', 'button',
                 '.link', '.menu-item',
-                'script', 'style', 'noscript'
+                'script', 'style', 'noscript',
+                '.Nservice_item', '.Nheader',  // 네이버 서비스 메뉴
+                '.log_area', '.login',         // 로그인 영역
+                '.bottom_area', '.footer_area' // 푸터 영역
+            ];
+            
+            // 제외할 텍스트 패턴
+            const excludeTexts = [
+                '로그인이 필요합니다',
+                '이웃추가',
+                '공유하기',
+                'URL 복사',
+                '신고하기',
+                '본문 폰트 크기',
+                'PC버전으로 보기',
+                '블로그 고객센터',
+                '네이버 블로그',
+                '카테고리 이동',
+                '카테고리',
+                '검색',
+                'My Menu',
+                '본문 바로가기',
+                'Most important',
+                '내소식',
+                '이웃목록',
+                '클립만들기',
+                '글쓰기',
+                '내 체크인',
+                '최근 본 글',
+                '내 동영상',
+                '내 클립',
+                '내 상품 관리',
+                '마켓 플레이스',
+                '장바구니',
+                '마켓 구매내역',
+                '블로그팀 공식블로그',
+                '이달의 블로그',
+                '공식 블로그',
+                '블로그 앱',
+                'NAVER Corp',
+                'ⓒ'
             ];
             
             // 제외할 요소들 찾기
@@ -429,8 +516,50 @@ def extract_content(page: Page) -> PostContent:
             while (node = walker.nextNode()) {
                 const nodeText = node.textContent.trim();
                 if (nodeText && nodeText.length > 0) {
+                    // 제외할 텍스트 패턴 확인
+                    let shouldExclude = false;
+                    for (const excludeText of excludeTexts) {
+                        if (nodeText.includes(excludeText)) {
+                            shouldExclude = true;
+                            break;
+                        }
+                    }
+                    
+                    // 추가 필터링: 불필요한 텍스트 패턴
+                    if (!shouldExclude) {
+                        // 날짜 형식 제외 (2016. 12. 18. 등)
+                        if (/^\\d{4}\\.\\s*\\d{1,2}\\.\\s*\\d{1,2}/.test(nodeText)) {
+                            shouldExclude = true;
+                        }
+                        // 숫자만 있는 줄 제외 (123 등)
+                        if (/^\\d+$/.test(nodeText)) {
+                            shouldExclude = true;
+                        }
+                        // JSON 데이터 제외
+                        if (nodeText.trim().startsWith('{') && nodeText.includes('"title"')) {
+                            shouldExclude = true;
+                        }
+                        // 블로그명/닉네임 패턴 제외
+                        if (nodeText.includes('(skalekd77)') || nodeText.includes('투영') || nodeText.includes('Too_young')) {
+                            shouldExclude = true;
+                        }
+                        // 영어만 있는 줄 (메뉴 항목 등) 제외
+                        if (/^[A-Za-z\\s\\.]+$/.test(nodeText) && nodeText.length < 30 && !nodeText.includes('\\n')) {
+                            shouldExclude = true;
+                        }
+                        // 특수 문자만 있는 줄 제외
+                        if (/^[ⓒ\\(\\)\\[\\]\\{\\}]+$/.test(nodeText)) {
+                            shouldExclude = true;
+                        }
+                        // 카테고리, 카테고리 이동 등 제외
+                        if (nodeText.includes('카테고리')) {
+                            shouldExclude = true;
+                        }
+                    }
+                    
                     // 너무 짧은 텍스트는 제외 (메뉴 항목 등)
-                    if (nodeText.length > 2) {
+                    // 하지만 본문은 포함 (3자 이상)
+                    if (!shouldExclude && nodeText.length >= 3) {
                         text += nodeText + '\\n';
                     }
                 }

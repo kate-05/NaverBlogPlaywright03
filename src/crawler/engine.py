@@ -38,7 +38,28 @@ def extract_blog_id_from_url(url: str) -> str:
 
 def extract_title(page: Page) -> str:
     """제목 추출 (모바일 네이버 블로그)"""
-    # JavaScript로 제목 추출 (더 정확)
+    # 우선: 페이지 title에서 추출 (가장 정확)
+    try:
+        page_title = page.title()
+        if page_title:
+            # " : " 구분자로 제목 추출 (네이버 블로그 형식: "제목 : 네이버 블로그")
+            if ' : ' in page_title:
+                parts = page_title.split(' : ')
+                if len(parts) > 0:
+                    title = parts[0].strip()
+                    if title and len(title) < 200:
+                        return title
+            # " - " 구분자로 제목 추출
+            if ' - ' in page_title:
+                parts = page_title.split(' - ')
+                if len(parts) > 0:
+                    title = parts[0].strip()
+                    if title and len(title) < 200:
+                        return title
+    except Exception:
+        pass
+    
+    # JavaScript로 제목 추출 (Fallback)
     try:
         title = page.evaluate("""() => {
             // 방법 1: 본문 제목 요소 직접 찾기
@@ -64,13 +85,22 @@ def extract_title(page: Page) -> str:
                 }
             }
             
-            // 방법 2: 페이지 title에서 추출 (형식: "제목 - 블로그명")
+            // 방법 2: 페이지 title에서 추출
             const pageTitle = document.title;
             if (pageTitle) {
+                // " : " 구분자로 제목 추출
+                if (pageTitle.includes(' : ')) {
+                    const parts = pageTitle.split(' : ');
+                    if (parts.length > 0) {
+                        return parts[0].trim();
+                    }
+                }
                 // " - " 구분자로 제목 추출
-                const parts = pageTitle.split(' - ');
-                if (parts.length > 0) {
-                    return parts[0].trim();
+                if (pageTitle.includes(' - ')) {
+                    const parts = pageTitle.split(' - ');
+                    if (parts.length > 0) {
+                        return parts[0].trim();
+                    }
                 }
                 return pageTitle.trim();
             }
@@ -110,10 +140,16 @@ def extract_title(page: Page) -> str:
     try:
         page_title = page.title()
         if page_title:
+            # " : " 구분자로 제목 추출 (네이버 블로그 형식)
+            if ' : ' in page_title:
+                parts = page_title.split(' : ')
+                if len(parts) > 0:
+                    return parts[0].strip()
             # " - " 구분자로 제목 추출
-            parts = page_title.split(' - ')
-            if len(parts) > 0:
-                return parts[0].strip()
+            if ' - ' in page_title:
+                parts = page_title.split(' - ')
+                if len(parts) > 0:
+                    return parts[0].strip()
             return page_title.strip()
     except Exception:
         pass
