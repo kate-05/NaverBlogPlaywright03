@@ -513,6 +513,7 @@ def extract_content(page: Page) -> PostContent:
             );
             
             let node;
+            let collectedLines = [];
             while (node = walker.nextNode()) {
                 const nodeText = node.textContent.trim();
                 if (nodeText && nodeText.length > 0) {
@@ -555,15 +556,46 @@ def extract_content(page: Page) -> PostContent:
                         if (nodeText.includes('카테고리')) {
                             shouldExclude = true;
                         }
+                        // "블로그" 포함 텍스트 제외 (메뉴 등)
+                        if (nodeText.includes('블로그')) {
+                            shouldExclude = true;
+                        }
+                        // 한글과 숫자 조합이 아닌 짧은 텍스트 제외 (메뉴 등)
+                        if (nodeText.length < 5 && !/[가-힣]/.test(nodeText)) {
+                            shouldExclude = true;
+                        }
                     }
                     
-                    // 너무 짧은 텍스트는 제외 (메뉴 항목 등)
-                    // 하지만 본문은 포함 (3자 이상)
+                    // 본문은 포함 (3자 이상, 한글이 포함된 경우 우선)
                     if (!shouldExclude && nodeText.length >= 3) {
-                        text += nodeText + '\\n';
+                        // 한글이 포함된 텍스트는 우선 포함
+                        // 하지만 제목과 같은 짧은 텍스트는 제외
+                        const hasKorean = /[가-힣]/.test(nodeText);
+                        if (hasKorean && nodeText.length > 5) {
+                            // 제목 패턴 제외 (숫자로 시작하는 짧은 텍스트, 예: "161217 호떡 먹고싶다")
+                            if (!(/^\\d{6}\\s/.test(nodeText) && nodeText.length < 30)) {
+                                collectedLines.push(nodeText);
+                            }
+                        } else if (nodeText.length > 10 && !hasKorean) {
+                            // 영어나 기타 텍스트도 10자 이상인 경우만 포함
+                            collectedLines.push(nodeText);
+                        }
                     }
                 }
             }
+            
+            // 중복 제거 및 정리
+            const uniqueLines = [];
+            const seen = new Set();
+            for (const line of collectedLines) {
+                if (!seen.has(line) && line.length > 0) {
+                    seen.add(line);
+                    uniqueLines.push(line);
+                }
+            }
+            
+            // 수집된 줄들을 합치기
+            text = uniqueLines.join('\\n');
             
             return text.trim();
         }""", container_info.get('selector') if container_info.get('found') else None)
