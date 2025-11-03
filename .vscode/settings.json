@@ -1,0 +1,6 @@
+{
+  "playwright.testDir": "tests",
+  "playwright.showTrace": true,
+  "playwright.reuseBrowser": true
+}
+

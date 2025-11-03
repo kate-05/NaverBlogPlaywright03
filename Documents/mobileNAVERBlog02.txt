@@ -1,0 +1,55 @@
+
+전체글 갯수 확인
+아래 버튼 누른 후, <em class="num_area__d8SvC">187</em> 요소 확인
+<button data-click-area="pls.sort" class="link__dkflP"><span class="text__j6LKZ">전체글</span></button>
+
+전체글 갯수 수집 후 아래 버튼 눌러서 원래 페이지로 돌아와야 함
+<button type="button" class="btn__PPrNT" aria-label="닫기"><span class="icon_market_close__ok5LS"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="icon__oxbGw" aria-hidden="true"><path fill="none" stroke="#000" stroke-linecap="round" stroke-width="1.8" d="m4.5 5 16 16m0-16-16 16"></path></svg></span></button>
+
+스크롤 다운하여 전체 글 갯수와 링크 확인. 
+스크롤 다운해도 화면 사이즈 변화 없을때까지 스크롤 다운.
+스크롤 다운 끝까지 한 후 글 목록 확인
+
+
+스크롤 빠르게 하기 위해 아래 링크 타입 사용
+https://m.blog.naver.com/koding2002?categoryNo=0&listStyle=post&tab=1
+
+스크롤은 '맨 위로' 버튼이 나타날때까지
+'맨 위로' 버튼 요소
+<button class="scroll_top_button__uyAEr" data-click-area="pls.backtotop"><i class="icon_wrap__Uz1Ad"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" class="icon__PDS_c"><path fill="#444" d="M3.5 4a.5.5 0 1 1 0-1h17a.5.5 0 1 1 0 1zm8 2.82-3.953 3.843a.5.5 0 0 1-.697.004.464.464 0 0 1-.003-.67l4.805-4.66a.5.5 0 0 1 .696 0l4.805 4.66a.464.464 0 0 1-.003.67.5.5 0 0 1-.697-.004L12.5 6.82V20.5a.5.5 0 1 1-1 0z"></path></svg></i><span class="text__Dc98N">맨 위로</span></button>
+
+
+전체글 리스트 있는 xpath
+/html/body/div[1]/div[5]/div[4]
+
+링크 xpath
+/html/body/div[1]/div[5]/div[4]/div[2]/div/div[2]/ul/li[1]/div/a
+전체글 리스트에서 링크를 찾아야 함.
+title div 요소
+<div class="postlist__qxOgF"><a href="https://m.blog.naver.com/koding2002/224048062846?referrerCode=1" class="link__A4O1D" data-click-area="pls.textpost"><div class="text_area__CmNI4"><strong class="title__Hj5DO"><span class="ell2"><span>설계자 스터디 — 스택 확정 &amp; 실체화 플랜 수립</span></span></strong><p class="content__QBe4Y"><span class="ell2"><span>오늘 스터디에서는 각자 스택(Stack)을 확정하고, 그 스택을 실체화하는 실행 플랜을 구체적으로 짰습니다. 이번 주는 단순한 아이디어 정리가 아니라, ‘무엇을 언제까지 구현할 것인가’로 한 단계 진전된 회차였습니다. 👶 베이비 마사지 스택 &amp; 플랜 1️⃣ 인스타 활동 댓글, 좋아요, DM, 릴스 영상 업로드 고객 접점 강화 및 신규 팔로워 확보 루틴 구축 2️⃣ 블로그 콘텐츠 공지글 발행: 루틴북, 영상, 클래스, 1:1 코칭글 등 3️⃣ 루틴북 &amp; 실습 체크표 제작 완료 목표일: 10월 26일 (일) 4️⃣ 루틴 클래스 (3회) 클래스 커리큘럼 및 일정 확정 예정 5️⃣ 5-5-5 영상 가이드 (10분) 제작 완료 목표일: 11월 2일 (일) 6️⃣ 7일 루틴 프로그램 커리큘럼 콘텐츠 구조 및 운영 플로우 확정 단계 👗 보정속옷 스택 &amp; 플랜 1️⃣ 체크리스트 제작 고객 피드백 기반 체크 항목 구성 2️⃣ 전자책 발행 발행 목표일: 10월 27일 (월) 3️⃣ 운동법 콘텐츠 제품과 연계한 교정·스트레칭 루틴 영상 제작 💻 케이트 스택 &amp; 플랜 1️⃣ 크롤러 프로그램 제공 (3종) 유튜브(회원전용·실시간 제외), 네이버, 인스타 6개월 한정 사용권 (300만 원) 제공 ...</span></span></p><div class="desc__k5fQT"><span class="time__SNGFu">2025. 10. 21.</span></div></div><div class="meta_foot__I5IqM"><span class="like__vTXys"><i class="icon_like__eVF3D" aria-label="공감"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path fill="none" stroke="#999" stroke-width="1.3" d="M4.322 2.15c.68 0 1.356.283 1.874.839.454.307.613.22.782.13 1.172-.626 1.932-.969 2.7-.969.678 0 1.355.283 1.873.839a3.05 3.05 0 0 1 .799 2.082c0 .753-.264 1.507-.8 2.083L7.337 11.7 2.45 7.154a3.05 3.05 0 0 1-.8-2.084c0-.753.264-1.507.8-2.082a2.55 2.55 0 0 1 1.872-.839z"></path></svg></i>3</span><span class="comment__bWHnT"><i class="icon_comment___OpHA" aria-label="댓글"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path stroke="#999" stroke-width="1.3" d="M7 1.65c1.475 0 2.812.6 3.781 1.569A5.33 5.33 0 0 1 12.35 7c0 1.475-.6 2.812-1.569 3.781A5.33 5.33 0 0 1 7 12.35a5.33 5.33 0 0 1-3.001-.921l-1.288.34-.141-1.77A5.3 5.3 0 0 1 1.65 7c0-1.475.6-2.812 1.569-3.781A5.33 5.33 0 0 1 7 1.65z"></path><path fill="#999" d="M7.05 6.3a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5m-2.3 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5m4.6 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5"></path></g></svg></i>2</span></div></a></div>
+
+
+공감과 댓글 수 및 공유하기 요소
+<div class="meta_foot__I5IqM"><span class="like__vTXys"><i class="icon_like__eVF3D" aria-label="공감"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><path fill="none" stroke="#999" stroke-width="1.3" d="M4.322 2.15c.68 0 1.356.283 1.874.839.454.307.613.22.782.13 1.172-.626 1.932-.969 2.7-.969.678 0 1.355.283 1.873.839a3.05 3.05 0 0 1 .799 2.082c0 .753-.264 1.507-.8 2.083L7.337 11.7 2.45 7.154a3.05 3.05 0 0 1-.8-2.084c0-.753.264-1.507.8-2.082a2.55 2.55 0 0 1 1.872-.839z"></path></svg></i>3</span><span class="comment__bWHnT"><i class="icon_comment___OpHA" aria-label="댓글"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path stroke="#999" stroke-width="1.3" d="M7 1.65c1.475 0 2.812.6 3.781 1.569A5.33 5.33 0 0 1 12.35 7c0 1.475-.6 2.812-1.569 3.781A5.33 5.33 0 0 1 7 12.35a5.33 5.33 0 0 1-3.001-.921l-1.288.34-.141-1.77A5.3 5.3 0 0 1 1.65 7c0-1.475.6-2.812 1.569-3.781A5.33 5.33 0 0 1 7 1.65z"></path><path fill="#999" d="M7.05 6.3a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5m-2.3 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5m4.6 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5"></path></g></svg></i>2</span></div>
+
+
+글과 댓글은 각 링크 이동 후 수집
+
+
+
+글 들어가면 해시태그 먼저 수집. 아래 버튼 누르면 모든 해시태그 보임.
+<button type="button" class="tag__tFC3j expand_btn__oaNLH" data-click-area="pst.tagmore">+16</button>
+
+해시태그 요소
+<div class="list_wrap__jKORt"><div class="list_area__cK2KN is_visible__B7lk4"><ul class="list__yr1c8"><li class="item__jRCnW"><a href="https://m.blog.naver.com/BlogTagView.naver?orderType=date&amp;tagName=%ED%8F%AC%EB%93%9C%EC%9D%B5%EC%8A%A4%ED%94%8C%EB%A1%9C%EB%9F%AC" data-click-area="pst.tag" class="tag__tFC3j"><span>#</span>포드익스플로러</a></li><li class="item__jRCnW"><a href="https://m.blog.naver.com/BlogTagView.naver?orderType=date&amp;tagName=%ED%8F%AC%EB%93%9CSUV" data-click-area="pst.tag" class="tag__tFC3j"><span>#</span>포드SUV</a></li><li class="item__jRCnW"><a href="https://m.blog.naver.com/BlogTagView.naver?orderType=date&amp;tagName=%EC%9D%B5%EC%8A%A4%ED%94%8C%EB%A1%9C%EB%9F%AC%ED%9A%A8%EA%B3%BC" data-click-area="pst.tag" class="tag__tFC3j"><span>#</span>익스플로러효과</a></li><li class="item__jRCnW"><a href="https://m.blog.naver.com/BlogTagView.naver?orderType=date&amp;tagName=SUV%EB%AA%85%EA%B0%80" data-click-area="pst.tag" class="tag__tFC3j"><span>#</span>SUV명가</a></li><li class="item__jRCnW"><a href="https://m.blog.naver.com/BlogTagView.naver?orderType=date&amp;tagName=%EB%8C%80%ED%98%95SUV%EC%B6%94%EC%B2%9C" data-click-area="pst.tag" class="tag__tFC3j"><span>#</span>대형SUV추천</a></li><li class="item__jRCnW"><button type="button" class="tag__tFC3j expand_btn__oaNLH" data-click-area="pst.tagmore">+15</button></li></ul></div></div>ㅊ
+
+글 들어가면 이 버튼 눌렀을 때 댓글 보임/댓글 요소
+<button type="button" class="comment_btn__TUucZ" data-click-area="pst.re"><span class="icon__seNf8"><span class="blind">댓글</span></span><span class="num__OVfhz">4</span></button>
+댓글 갯수가 0 이상인 경우에 수집이 안된 경우만 재시도
+
+댓글 닉네임 요소
+<span class="u_cbox_nick">Today Info</span>
+댓글 내용 요소
+<span class="u_cbox_contents" style="" data-lang="ko">AI 기술을 통해 자동차 생산 방식이 혁신적으로 변화할 것 같아 기대되네요. 현대차와 엔비디아의 협력이 앞으로 어떤 놀라운 결과로 이어질지 정말 궁금합니다!</span>
+
+댓글의 대댓글 있는 경우 있음.
