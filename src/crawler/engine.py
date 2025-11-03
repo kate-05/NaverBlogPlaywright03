@@ -212,21 +212,30 @@ def _collect_all_post_links(
             except Exception:
                 pass
     
-    # 2단계: 스크롤 다운
+    # 2단계: 스크롤 다운 (문서: '맨 위로' 버튼이 나타날 때까지)
     print("[단계] === 2단계: 스크롤 다운하여 전체 글 갯수와 링크 확인 ===")
     if total_post_count:
         print(f"[단계] 목표: {total_post_count}개 링크 수집")
     
-    print("[단계] 스크롤을 빠르게 끝까지 진행 중... (높이 변화가 없을 때까지)")
+    print("[단계] 스크롤을 빠르게 끝까지 진행 중... ('맨 위로' 버튼이 나타날 때까지)")
     
     scroll_count = 0
     no_change_count = 0
     no_change_threshold = 3
+    max_scrolls = 200  # 최대 스크롤 횟수 제한
     
-    while True:
+    while scroll_count < max_scrolls:
         scroll_count += 1
         if scroll_count % 10 == 0:
             print(f"[단계] 스크롤 반복 {scroll_count}")
+        
+        # '맨 위로' 버튼 확인 (문서 기준)
+        scroll_top_button = page.locator('button.scroll_top_button__uyAEr[data-click-area="pls.backtotop"]').first
+        if scroll_top_button.count() > 0:
+            # '맨 위로' 버튼이 보이면 스크롤 완료
+            print("[단계] '맨 위로' 버튼 감지 - 스크롤 완료")
+            time.sleep(1)  # 최종 로딩 대기
+            break
         
         # 스크롤 전 높이 측정
         old_height = page.evaluate('document.body.scrollHeight')
@@ -259,58 +268,107 @@ def _collect_all_post_links(
             print(f"[단계] 높이 변화 감지: {old_height} → {new_height}px (+{new_height - old_height}px) - 계속 스크롤")
             no_change_count = 0  # 리셋
     
+    # 링크 수집 전 추가 대기
+    time.sleep(2)
+    
     # 3단계: 링크 수집
     print("[단계] === 3단계: 스크롤 완료, 글 목록에서 링크 수집 ===")
     
-    # JavaScript로 링크 수집
+    # JavaScript로 링크 수집 (문서 기준: /html/body/div[1]/div[5]/div[4])
     links = page.evaluate("""(blogId) => {
         const links = [];
         
-        // 컨테이너 찾기
-        const containers = [
-            document.evaluate('/html/body/div[1]/div[5]/div[2]/div[3]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue,
-            document.evaluate('/html/body/div[1]/div[5]/div[4]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
-        ];
+        // 컨테이너 찾기 (문서 기준 XPath: /html/body/div[1]/div[5]/div[4])
+        const mainContainer = document.evaluate(
+            '/html/body/div[1]/div[5]/div[4]', 
+            document, 
+            null, 
+            XPathResult.FIRST_ORDERED_NODE_TYPE, 
+            null
+        ).singleNodeValue;
         
-        // 방법 1: 특정 선택자로 링크 찾기 (문서 기준)
+        // Fallback 컨테이너들
+        const fallbackContainers = [
+            document.evaluate('/html/body/div[1]/div[5]/div[2]/div[3]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue,
+            mainContainer
+        ].filter(c => c !== null);
+        
+        const containers = mainContainer ? [mainContainer] : fallbackContainers;
+        
+        // 방법 1: 문서에 명시된 선택자 사용 (a.link__A4O1D, a[data-click-area="pls.textpost"])
         containers.forEach(container => {
             if (!container) return;
             
-            // a.link__A4O1D 또는 a[data-click-area="pls.textpost"] 선택자 사용
-            const linkElements = container.querySelectorAll('a.link__A4O1D, a[data-click-area="pls.textpost"]');
-            linkElements.forEach(a => {
-                let href = a.getAttribute('href');
-                if (href) {
-                    // 상대 경로를 절대 경로로 변환
-                    if (href.startsWith('/')) {
-                        href = 'https://m.blog.naver.com' + href;
-                    } else if (!href.startsWith('http')) {
-                        href = 'https://m.blog.naver.com/' + href;
-                    }
-                    
-                    // 블로그 ID와 포스트 번호 포함 확인
-                    // 형식: /blog_id/숫자 또는 ?blogId=...&logNo=...
-                    const blogIdPattern = new RegExp(blogId, 'i');
-                    const postNumberPattern = /\/\d+|logNo=\d+/;
-                    
-                    if (blogIdPattern.test(href) && postNumberPattern.test(href)) {
-                        // PostView URL로 변환 (표준 형식)
-                        const postNumMatch = href.match(/\/(\d+)/) || href.match(/logNo=(\d+)/);
-                        if (postNumMatch) {
-                            const postNum = postNumMatch[1];
-                            const standardUrl = `https://m.blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${postNum}`;
-                            if (!links.includes(standardUrl)) {
-                                links.push(standardUrl);
+            // div.postlist__qxOgF 안의 링크 찾기 (문서 기준)
+            const postListDivs = container.querySelectorAll('div.postlist__qxOgF');
+            postListDivs.forEach(postDiv => {
+                const linkElements = postDiv.querySelectorAll('a.link__A4O1D, a[data-click-area="pls.textpost"]');
+                linkElements.forEach(a => {
+                    let href = a.getAttribute('href');
+                    if (href) {
+                        // 상대 경로를 절대 경로로 변환
+                        if (href.startsWith('/')) {
+                            href = 'https://m.blog.naver.com' + href;
+                        } else if (!href.startsWith('http')) {
+                            href = 'https://m.blog.naver.com/' + href;
+                        }
+                        
+                        // 블로그 ID와 포스트 번호 포함 확인
+                        // 형식: /blog_id/숫자 또는 ?blogId=...&logNo=...
+                        const blogIdPattern = new RegExp(blogId, 'i');
+                        const postNumberPattern = /\/(\d+)|logNo=(\d+)/;
+                        
+                        if (blogIdPattern.test(href) && postNumberPattern.test(href)) {
+                            // PostView URL로 변환 (표준 형식)
+                            const postNumMatch = href.match(/\/(\d+)/) || href.match(/logNo=(\d+)/);
+                            if (postNumMatch) {
+                                const postNum = postNumMatch[1] || postNumMatch[2];
+                                const standardUrl = `https://m.blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${postNum}`;
+                                if (!links.includes(standardUrl)) {
+                                    links.push(standardUrl);
+                                }
                             }
-                        } else if (!links.includes(href)) {
-                            links.push(href);
                         }
                     }
-                }
+                });
             });
         });
         
-        // 방법 2: Fallback - 기존 방식
+        // 방법 2: Fallback - 직접 선택자로 찾기
+        if (links.length === 0) {
+            containers.forEach(container => {
+                if (!container) return;
+                
+                // 전체 링크 찾기
+                const linkElements = container.querySelectorAll('a.link__A4O1D, a[data-click-area="pls.textpost"]');
+                linkElements.forEach(a => {
+                    let href = a.getAttribute('href');
+                    if (href) {
+                        if (href.startsWith('/')) {
+                            href = 'https://m.blog.naver.com' + href;
+                        } else if (!href.startsWith('http')) {
+                            href = 'https://m.blog.naver.com/' + href;
+                        }
+                        
+                        const blogIdPattern = new RegExp(blogId, 'i');
+                        const postNumberPattern = /\/(\d+)|logNo=(\d+)/;
+                        
+                        if (blogIdPattern.test(href) && postNumberPattern.test(href)) {
+                            const postNumMatch = href.match(/\/(\d+)/) || href.match(/logNo=(\d+)/);
+                            if (postNumMatch) {
+                                const postNum = postNumMatch[1] || postNumMatch[2];
+                                const standardUrl = `https://m.blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${postNum}`;
+                                if (!links.includes(standardUrl)) {
+                                    links.push(standardUrl);
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 방법 3: 최종 Fallback - ul/li 구조에서 찾기
         if (links.length === 0) {
             containers.forEach(container => {
                 if (!container) return;
@@ -323,28 +381,23 @@ def _collect_all_post_links(
                         allLinks.forEach(a => {
                             let href = a.getAttribute('href');
                             if (href) {
-                                // 상대 경로를 절대 경로로 변환
                                 if (href.startsWith('/')) {
                                     href = 'https://m.blog.naver.com' + href;
                                 } else if (!href.startsWith('http')) {
                                     href = 'https://m.blog.naver.com/' + href;
                                 }
                                 
-                                // 블로그 ID와 포스트 번호 포함 확인
                                 const blogIdPattern = new RegExp(blogId, 'i');
-                                const postNumberPattern = /\/\d+|logNo=\d+|PostView/;
+                                const postNumberPattern = /\/(\d+)|logNo=(\d+)|PostView/;
                                 
                                 if (blogIdPattern.test(href) && postNumberPattern.test(href)) {
-                                    // PostView URL로 변환
                                     const postNumMatch = href.match(/\/(\d+)/) || href.match(/logNo=(\d+)/);
                                     if (postNumMatch) {
-                                        const postNum = postNumMatch[1];
+                                        const postNum = postNumMatch[1] || postNumMatch[2];
                                         const standardUrl = `https://m.blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${postNum}`;
                                         if (!links.includes(standardUrl)) {
                                             links.push(standardUrl);
                                         }
-                                    } else if (!links.includes(href)) {
-                                        links.push(href);
                                     }
                                 }
                             }
