@@ -37,13 +37,62 @@ def extract_blog_id_from_url(url: str) -> str:
 
 
 def extract_title(page: Page) -> str:
-    """제목 추출"""
+    """제목 추출 (모바일 네이버 블로그)"""
+    # JavaScript로 제목 추출 (더 정확)
+    try:
+        title = page.evaluate("""() => {
+            // 방법 1: 본문 제목 요소 직접 찾기
+            const titleSelectors = [
+                'h1.post_subject',
+                'h1.se-title-text',
+                '.post-title h1',
+                '.post_subject',
+                '.se-title-text',
+                'h1.title',
+                'h1',
+                '.title',
+                '[class*="title"]'
+            ];
+            
+            for (const selector of titleSelectors) {
+                const elem = document.querySelector(selector);
+                if (elem) {
+                    const text = (elem.textContent || elem.innerText || '').trim();
+                    if (text && text.length > 0 && text.length < 200) {
+                        return text;
+                    }
+                }
+            }
+            
+            // 방법 2: 페이지 title에서 추출 (형식: "제목 - 블로그명")
+            const pageTitle = document.title;
+            if (pageTitle) {
+                // " - " 구분자로 제목 추출
+                const parts = pageTitle.split(' - ');
+                if (parts.length > 0) {
+                    return parts[0].trim();
+                }
+                return pageTitle.trim();
+            }
+            
+            return '';
+        }""")
+        
+        if title and title.strip():
+            return title.strip()
+    except Exception as e:
+        print(f"[경고] JavaScript 제목 추출 실패: {e}")
+    
+    # Fallback: Playwright Locator 사용
     title_selectors = [
+        'h1.post_subject',
+        'h1.se-title-text',
+        '.post_subject',
         '.se-title-text',
         '.post-title',
+        'h1.title',
         'h1',
-        '.title',
-        'title'
+        '.title'
     ]
     
     for selector in title_selectors:
@@ -51,16 +100,21 @@ def extract_title(page: Page) -> str:
             element = page.locator(selector).first
             if element.count() > 0:
                 title = element.text_content() or ''
-                if title.strip():
-                    return title.strip()
+                title = title.strip()
+                if title and len(title) < 200:  # 제목이 너무 길면 제외
+                    return title
         except Exception:
             continue
     
-    # Fallback: page title에서 추출
+    # 최종 Fallback: page title에서 추출
     try:
         page_title = page.title()
         if page_title:
-            return page_title
+            # " - " 구분자로 제목 추출
+            parts = page_title.split(' - ')
+            if len(parts) > 0:
+                return parts[0].strip()
+            return page_title.strip()
     except Exception:
         pass
     
@@ -520,7 +574,18 @@ def crawl_post_detail_mobile(
                         continue
                     raise TimeoutError(f"페이지 로딩 타임아웃: {post_url}")
             
-            time.sleep(1)  # 추가 대기
+            # 본문 로딩 대기 (중요: 네이버 블로그는 동적 로딩)
+            time.sleep(2)  # 초기 로딩 대기
+            
+            # 본문이 로드될 때까지 대기
+            try:
+                # 본문 컨테이너가 나타날 때까지 대기
+                page.wait_for_selector('.se-main-container, .se-component-content, #postViewArea, .post-view-area, .post-content', timeout=10000)
+            except Exception:
+                # 선택자가 없어도 계속 진행
+                pass
+            
+            time.sleep(1)  # 추가 안정화 대기
             
             # Post ID 추출
             post_id = extract_post_id_from_url(post_url)

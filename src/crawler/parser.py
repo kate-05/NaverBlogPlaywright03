@@ -256,34 +256,80 @@ def extract_comments(page: Page) -> List[Comment]:
 
 
 def extract_content(page: Page) -> PostContent:
-    """본문 내용 추출"""
+    """본문 내용 추출 (모바일 네이버 블로그)"""
     content = PostContent()
     
-    # 본문 컨테이너 찾기
-    content_selectors = [
-        '.se-main-container',
-        '.post-content',
-        '.area_view',
-        '.post-view',
-        '#postViewArea',
-        '.post-view-area',
-        '.se-component-content',
-        'article',
-        '.post_body',
-        'main',
-        'body'
-    ]
+    # 본문 컨테이너 찾기 (JavaScript로 더 정확하게)
+    container_info = page.evaluate("""() => {
+        // 본문 컨테이너 선택자 (우선순위 순)
+        const selectors = [
+            '.se-main-container',
+            '.se-component-content',
+            '#postViewArea',
+            '.post-view-area',
+            '.post-content',
+            '.area_view',
+            '.post-view',
+            'article',
+            '.post_body'
+        ];
+        
+        for (const selector of selectors) {
+            const elem = document.querySelector(selector);
+            if (elem) {
+                // 본문이 실제로 있는지 확인 (텍스트가 50자 이상)
+                const text = (elem.textContent || '').trim();
+                if (text.length > 50) {
+                    return {
+                        selector: selector,
+                        found: true,
+                        textLength: text.length
+                    };
+                }
+            }
+        }
+        
+        return { found: false };
+    }""")
     
     container = None
-    for selector in content_selectors:
-        try:
-            element = page.locator(selector).first
-            if element.count() > 0:
-                container = element
-                break
-        except Exception:
-            continue
     
+    # JavaScript에서 찾은 선택자로 컨테이너 찾기
+    if container_info.get('found'):
+        try:
+            container = page.locator(container_info['selector']).first
+            if container.count() == 0:
+                container = None
+        except Exception:
+            container = None
+    
+    # Fallback: 직접 선택자로 찾기
+    if not container:
+        content_selectors = [
+            '.se-main-container',
+            '.se-component-content',
+            '#postViewArea',
+            '.post-view-area',
+            '.post-content',
+            '.area_view',
+            '.post-view',
+            'article',
+            '.post_body'
+        ]
+        
+        for selector in content_selectors:
+            try:
+                element = page.locator(selector).first
+                if element.count() > 0:
+                    # 본문이 실제로 있는지 확인
+                    text = element.text_content() or ""
+                    if len(text.strip()) > 50:
+                        container = element
+                        break
+            except Exception:
+                continue
+    
+    # 최종 Fallback: body 사용 (하지만 본문 영역만 추출)
     if not container:
         container = page.locator('body')
     
@@ -291,8 +337,107 @@ def extract_content(page: Page) -> PostContent:
         # HTML 추출
         content.html = container.inner_html()
         
-        # 텍스트 추출
-        raw_text = container.text_content() or ""
+        # 텍스트 추출 - 본문 영역만 추출 (헤더, 푸터, 댓글 제외)
+        raw_text = page.evaluate("""(selector) => {
+            let container = null;
+            
+            // 선택자가 있으면 해당 요소 사용
+            if (selector) {
+                container = document.querySelector(selector);
+            }
+            
+            // 본문 컨테이너 찾기 (우선순위 순)
+            if (!container) {
+                const selectors = [
+                    '.se-main-container',
+                    '.se-component-content',
+                    '#postViewArea',
+                    '.post-view-area',
+                    '.post-content',
+                    '.area_view',
+                    '.post-view',
+                    'article',
+                    '.post_body'
+                ];
+                
+                for (const sel of selectors) {
+                    const elem = document.querySelector(sel);
+                    if (elem) {
+                        const text = (elem.textContent || '').trim();
+                        // 본문이 실제로 있는지 확인 (50자 이상)
+                        if (text.length > 50) {
+                            container = elem;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (!container) {
+                // body에서 본문 영역 찾기
+                container = document.body;
+            }
+            
+            // 제목, 헤더, 푸터, 댓글 영역 제외
+            const excludeSelectors = [
+                'header', '.header', '.post-header',
+                'footer', '.footer', '.post-footer',
+                '.post-title', '.post_subject', 'h1', 'h2',
+                '.comment-area', '.u_cbox', '.comment',
+                '.post-meta', '.meta-info', '.author-info',
+                '.navigation', '.nav', '.menu',
+                '.sidebar', '.side', '.widget',
+                '.btn', '.button', 'button',
+                '.link', '.menu-item',
+                'script', 'style', 'noscript'
+            ];
+            
+            // 제외할 요소들 찾기
+            const excludeElements = new Set();
+            excludeSelectors.forEach(sel => {
+                try {
+                    document.querySelectorAll(sel).forEach(el => {
+                        excludeElements.add(el);
+                    });
+                } catch (e) {}
+            });
+            
+            // 본문 텍스트 추출 (제외 요소 제외)
+            let text = '';
+            const walker = document.createTreeWalker(
+                container,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        let parent = node.parentElement;
+                        while (parent && parent !== container) {
+                            if (excludeElements.has(parent)) {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            // 스크립트나 스타일 태그도 제외
+                            if (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            parent = parent.parentElement;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                }
+            );
+            
+            let node;
+            while (node = walker.nextNode()) {
+                const nodeText = node.textContent.trim();
+                if (nodeText && nodeText.length > 0) {
+                    // 너무 짧은 텍스트는 제외 (메뉴 항목 등)
+                    if (nodeText.length > 2) {
+                        text += nodeText + '\\n';
+                    }
+                }
+            }
+            
+            return text.trim();
+        }""", container_info.get('selector') if container_info.get('found') else None)
         
         # 텍스트 정리 (가독성 향상)
         content.text = clean_text(raw_text)
