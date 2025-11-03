@@ -490,8 +490,8 @@ def crawl_by_blog_id(
             'created_at': None
         }
         
-        # 포스트 목록 페이지 접속
-        post_list_url = f"https://m.blog.naver.com/PostList.naver?blogId={blog_id}"
+        # 포스트 목록 페이지 접속 (빠른 스크롤을 위한 링크 타입 사용)
+        post_list_url = f"https://m.blog.naver.com/{blog_id}?categoryNo=0&listStyle=post&tab=1"
         print(f"[단계] 포스트 목록 페이지 접속: {post_list_url}")
         page.goto(post_list_url, wait_until='domcontentloaded', timeout=timeout * 1000)
         time.sleep(5)  # 페이지 로딩 대기
