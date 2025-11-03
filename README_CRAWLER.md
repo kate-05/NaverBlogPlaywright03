@@ -53,8 +53,27 @@ playwright install chromium
 
 ## 실행 방법
 
-### GUI 모드로 실행
+### 방법 1: 실행 스크립트 사용 (권장)
+**Windows:**
 ```bash
+run.bat
+```
+
+**Linux/Mac/Git Bash:**
+```bash
+./run.sh
+```
+
+### 방법 2: 수동 실행
+**가상환경 활성화 후 실행:**
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac/Git Bash
+source venv/Scripts/activate
+
+# GUI 모드로 실행
 python main.py
 ```
 
