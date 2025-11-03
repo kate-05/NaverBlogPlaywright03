@@ -274,6 +274,43 @@ def _collect_all_post_links(
     # 3단계: 링크 수집
     print("[단계] === 3단계: 스크롤 완료, 글 목록에서 링크 수집 ===")
     
+    # 디버깅: 페이지 구조 확인
+    debug_info = page.evaluate("""() => {
+        const info = {
+            containers: [],
+            allLinks: 0,
+            postLinks: 0
+        };
+        
+        // 모든 가능한 컨테이너 확인
+        for (let i = 1; i <= 10; i++) {
+            for (let j = 1; j <= 10; j++) {
+                const xpath = `/html/body/div[1]/div[${i}]/div[${j}]`;
+                const container = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                if (container) {
+                    const linkCount = container.querySelectorAll('a[href]').length;
+                    if (linkCount > 0) {
+                        info.containers.push({xpath: xpath, links: linkCount});
+                    }
+                }
+            }
+        }
+        
+        // 전체 페이지 링크 수
+        info.allLinks = document.querySelectorAll('a[href]').length;
+        info.postLinks = document.querySelectorAll('a[href*="/' + location.pathname.split('/')[1] + '/"], a[href*="PostView"], a[href*="logNo"]').length;
+        
+        return info;
+    }""")
+    
+    print(f"[디버깅] 페이지 구조 확인:")
+    print(f"  - 전체 링크 수: {debug_info['allLinks']}")
+    print(f"  - 포스트 링크 수: {debug_info['postLinks']}")
+    if debug_info['containers']:
+        print(f"  - 링크가 있는 컨테이너: {len(debug_info['containers'])}개")
+        for container in debug_info['containers'][:5]:  # 처음 5개만 출력
+            print(f"    * {container['xpath']}: {container['links']}개 링크")
+    
     # JavaScript로 링크 수집 (문서 기준: /html/body/div[1]/div[5]/div[4])
     links = page.evaluate("""(blogId) => {
         const links = [];
@@ -404,6 +441,35 @@ def _collect_all_post_links(
                         });
                     });
                 });
+            });
+        }
+        
+        // 방법 4: 최종 Fallback - 페이지 전체에서 블로그 ID와 포스트 번호가 있는 링크 찾기
+        if (links.length === 0) {
+            const allLinks = document.querySelectorAll('a[href]');
+            allLinks.forEach(a => {
+                let href = a.getAttribute('href');
+                if (href) {
+                    if (href.startsWith('/')) {
+                        href = 'https://m.blog.naver.com' + href;
+                    } else if (!href.startsWith('http')) {
+                        href = 'https://m.blog.naver.com/' + href;
+                    }
+                    
+                    const blogIdPattern = new RegExp(blogId, 'i');
+                    const postNumberPattern = /\/(\d{8,})|logNo=(\d{8,})/;  // 8자리 이상 숫자 (포스트 ID)
+                    
+                    if (blogIdPattern.test(href) && postNumberPattern.test(href)) {
+                        const postNumMatch = href.match(/\/(\d{8,})/) || href.match(/logNo=(\d{8,})/);
+                        if (postNumMatch) {
+                            const postNum = postNumMatch[1] || postNumMatch[2];
+                            const standardUrl = `https://m.blog.naver.com/PostView.naver?blogId=${blogId}&logNo=${postNum}`;
+                            if (!links.includes(standardUrl)) {
+                                links.push(standardUrl);
+                            }
+                        }
+                    }
+                }
             });
         }
         
