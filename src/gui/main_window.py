@@ -327,25 +327,44 @@ class MainWindow:
         threading.Thread(target=self.crawl_worker, daemon=True).start()
     
     def log_message(self, message: str, error: bool = False):
-        """로그 메시지 추가"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        log_msg = f"[{timestamp}] {message}\n"
+        """로그 메시지 추가 (스레드 안전)"""
+        def _log():
+            try:
+                if hasattr(self, 'log_text') and self.log_text.winfo_exists():
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    log_msg = f"[{timestamp}] {message}\n"
+                    
+                    self.log_text.insert(tk.END, log_msg)
+                    if error:
+                        start_pos = self.log_text.index(f"end-{len(log_msg)}c")
+                        end_pos = self.log_text.index(tk.END)
+                        self.log_text.tag_add("error", start_pos, end_pos)
+                        self.log_text.tag_config("error", foreground="red")
+                    
+                    self.log_text.see(tk.END)
+            except Exception:
+                pass  # 위젯이 파괴된 경우 무시
         
-        self.log_text.insert(tk.END, log_msg)
-        if error:
-            self.log_text.tag_add("error", f"end-{len(log_msg)}c", tk.END)
-            self.log_text.tag_config("error", foreground="red")
-        
-        self.log_text.see(tk.END)
-        self.root.update()
+        # 메인 스레드에서 실행
+        self.root.after(0, _log)
     
     def update_progress(self, current: int, total: int):
-        """진행률 업데이트"""
-        if total > 0:
-            progress = (current / total) * 100
-            self.progress_var.set(progress)
-            self.progress_label.config(text=f"{progress:.1f}% ({current}/{total})")
-        self.root.update()
+        """진행률 업데이트 (스레드 안전)"""
+        def _update():
+            try:
+                if hasattr(self, 'progress_var') and hasattr(self, 'progress_label'):
+                    if hasattr(self, 'progress_label') and hasattr(self.progress_label, 'winfo_exists'):
+                        if self.progress_label.winfo_exists():
+                            if total > 0:
+                                progress = (current / total) * 100
+                                if hasattr(self, 'progress_var'):
+                                    self.progress_var.set(progress)
+                                self.progress_label.config(text=f"{progress:.1f}% ({current}/{total})")
+            except Exception:
+                pass  # 위젯이 파괴된 경우 무시
+        
+        # 메인 스레드에서 실행
+        self.root.after(0, _update)
     
     def confirm_stop(self):
         """중단 확인"""
@@ -362,13 +381,14 @@ class MainWindow:
         """크롤링 워커 스레드"""
         try:
             # 블로그 ID 목록 준비
+            blog_ids = []
             if self.resume_var.get():
                 # 재개 모드
                 checkpoint_path = self.checkpoint_path_var.get()
                 output_path = f"output/crawl_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                 
                 self.log_message("체크포인트에서 크롤링 재개 중...")
-                resume_crawling(
+                new_posts = resume_crawling(
                     checkpoint_path,
                     output_path,
                     self.checkpoint_manager,
@@ -396,12 +416,16 @@ class MainWindow:
                 )
             
             self.log_message("크롤링 완료!")
-            self.show_result_screen(output_path, len(blog_ids) if not self.resume_var.get() else 0)
+            # 메인 스레드에서 결과 화면 표시
+            self.root.after(0, lambda: self.show_result_screen(output_path, len(blog_ids) if not self.resume_var.get() else 0))
             
         except Exception as e:
-            self.log_message(f"오류 발생: {e}", True)
-            messagebox.showerror("오류", f"크롤링 중 오류가 발생했습니다:\n{e}")
-            self.show_main_screen()
+            import traceback
+            error_msg = str(e)
+            self.log_message(f"오류 발생: {error_msg}", True)
+            # 메인 스레드에서 에러 다이얼로그 표시
+            self.root.after(0, lambda: messagebox.showerror("오류", f"크롤링 중 오류가 발생했습니다:\n{error_msg}"))
+            self.root.after(0, self.show_main_screen)
     
     def show_result_screen(self, output_path: str, total_blogs: int):
         """결과 화면"""
