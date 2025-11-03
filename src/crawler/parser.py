@@ -292,9 +292,12 @@ def extract_content(page: Page) -> PostContent:
         content.html = container.inner_html()
         
         # 텍스트 추출
-        content.text = container.text_content() or ""
+        raw_text = container.text_content() or ""
         
-        # 단어 수 계산
+        # 텍스트 정리 (가독성 향상)
+        content.text = clean_text(raw_text)
+        
+        # 단어 수 계산 (정리된 텍스트 기준)
         content.word_count = len(content.text.split())
         
         # 이미지 URL 추출
@@ -340,6 +343,40 @@ def extract_content(page: Page) -> PostContent:
         print(f"[경고] 본문 추출 중 오류: {e}")
     
     return content
+
+
+def clean_text(text: str) -> str:
+    """텍스트 정리 - 가독성 향상"""
+    if not text:
+        return ""
+    
+    # 연속된 줄바꿈 정리 (3개 이상 -> 2개)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    # 각 줄의 앞뒤 공백 제거
+    lines = text.split('\n')
+    cleaned_lines = [line.strip() for line in lines]
+    
+    # 연속된 빈 줄 제거 (최대 2개까지만 유지)
+    result_lines = []
+    prev_empty = False
+    for line in cleaned_lines:
+        if not line:
+            if not prev_empty:
+                result_lines.append('')
+                prev_empty = True
+        else:
+            result_lines.append(line)
+            prev_empty = False
+    
+    # 연속된 공백 정리 (탭, 공백 여러 개 -> 하나의 공백)
+    result = '\n'.join(result_lines)
+    result = re.sub(r'[ \t]+', ' ', result)
+    
+    # 시작과 끝의 줄바꿈 제거
+    result = result.strip()
+    
+    return result
 
 
 def html_to_markdown(html: str) -> str:
