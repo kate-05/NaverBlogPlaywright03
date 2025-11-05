@@ -143,10 +143,78 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
     # 댓글 버튼 클릭
     try:
         comment_button.click()
-        time.sleep(5)  # 댓글 로딩 대기
-        time.sleep(2)  # 추가 안정화 대기
+        time.sleep(3)  # 댓글 로딩 대기 (초기 로딩)
     except Exception:
         return comments
+    
+    # 비밀 댓글 확인 (모든 댓글이 비밀 댓글이면 빠르게 패스)
+    try:
+        is_secret_only = page.evaluate("""() => {
+            // 댓글 영역 전체 텍스트 확인
+            const commentArea = document.querySelector(
+                '#naverComment_wai_u_cbox_content_wrap_tabpanel, [role="tabpanel"], .u_cbox_list'
+            );
+            if (!commentArea) {
+                return false;
+            }
+            
+            const areaText = commentArea.textContent || '';
+            
+            // "비밀 댓글입니다." 텍스트 확인
+            if (!areaText.includes('비밀 댓글입니다.')) {
+                return false;  // 비밀 댓글이 없으면 false
+            }
+            
+            // 댓글 아이템 수 확인
+            const commentItems = commentArea.querySelectorAll('li.u_cbox_comment, .u_cbox_comment');
+            const commentCount = commentItems.length;
+            
+            if (commentCount === 0) {
+                return false;
+            }
+            
+            // 각 댓글 아이템 확인
+            let secretCount = 0;
+            let hasNormalComment = false;
+            
+            commentItems.forEach(item => {
+                const itemText = item.textContent || '';
+                // 비밀 댓글 확인
+                if (itemText.includes('비밀 댓글입니다.')) {
+                    secretCount++;
+                } else {
+                    // 일반 댓글 확인 (닉네임이나 내용이 있으면)
+                    const hasNick = item.querySelector('span.u_cbox_nick');
+                    const hasContent = item.querySelector('span.u_cbox_contents');
+                    if (hasNick || hasContent) {
+                        const nickText = hasNick ? (hasNick.textContent || '').trim() : '';
+                        const contentText = hasContent ? (hasContent.textContent || '').trim() : '';
+                        // 비밀 댓글 텍스트가 없고 내용이 있으면 일반 댓글
+                        if (nickText || (contentText && !contentText.includes('비밀 댓글입니다.'))) {
+                            hasNormalComment = true;
+                        }
+                    }
+                }
+            });
+            
+            // 모든 댓글이 비밀 댓글이면 true 반환
+            // 일반 댓글이 하나도 없고, 모든 댓글이 비밀 댓글이면 건너뛰기
+            if (secretCount === commentCount && commentCount > 0 && !hasNormalComment) {
+                return true;
+            }
+            
+            return false;
+        }""")
+        
+        if is_secret_only:
+            print("[단계] 모든 댓글이 비밀 댓글입니다. 댓글 수집 건너뛰기 (크롤링 시간 단축)")
+            return comments
+    except Exception as e:
+        print(f"[경고] 비밀 댓글 확인 실패: {e}")
+        pass  # 비밀 댓글 확인 실패 시 정상 진행
+    
+    # 추가 로딩 대기 (비밀 댓글이 아닌 경우에만)
+    time.sleep(2)
     
     # JavaScript 기반 댓글 수집 (우선)
     try:
@@ -175,6 +243,13 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
             
             // 각 댓글 처리
             commentItems.forEach(item => {
+                // 비밀 댓글 확인
+                const itemText = item.textContent || '';
+                if (itemText.includes('비밀 댓글입니다.')) {
+                    // 비밀 댓글은 건너뛰기
+                    return;
+                }
+                
                 // 닉네임 추출
                 let author = '';
                 const nickElem = item.querySelector('span.u_cbox_nick');
@@ -192,11 +267,14 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
                 const contentElem = item.querySelector('span.u_cbox_contents');
                 if (contentElem) {
                     content = (contentElem.textContent || '').trim();
+                    // 비밀 댓글 내용 확인
+                    if (content.includes('비밀 댓글입니다.')) {
+                        return; // 비밀 댓글 건너뛰기
+                    }
                 }
                 
                 // 날짜 추출
                 let dateText = '';
-                const itemText = item.textContent || '';
                 const dateMatch = itemText.match(/\\d{4}\\.\\d{1,2}\\.\\d{1,2}\\.?\\s+\\d{1,2}:\\d{2}/);
                 if (dateMatch) {
                     dateText = dateMatch[0];
@@ -238,11 +316,20 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
             comment_items = page.locator('.u_cbox_list_item, .u_cbox_comment').all()
             for item in comment_items:
                 try:
+                    # 비밀 댓글 확인
+                    item_text = item.text_content() or ''
+                    if '비밀 댓글입니다.' in item_text:
+                        continue  # 비밀 댓글 건너뛰기
+                    
                     author_elem = item.locator('span.u_cbox_nick').first
                     author = author_elem.text_content().strip() if author_elem.count() > 0 else ''
                     
                     content_elem = item.locator('span.u_cbox_contents').first
                     content = content_elem.text_content().strip() if content_elem.count() > 0 else ''
+                    
+                    # 비밀 댓글 내용 확인
+                    if '비밀 댓글입니다.' in content:
+                        continue  # 비밀 댓글 건너뛰기
                     
                     if author or content:
                         comments.append(Comment(
