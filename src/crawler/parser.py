@@ -112,9 +112,13 @@ def extract_tags(page: Page) -> List[str]:
     return list(set(tags))  # 중복 제거
 
 
-def extract_comments(page: Page) -> List[Comment]:
+def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Comment]:
     """댓글 추출 (댓글 버튼 클릭 후)"""
     comments = []
+    
+    # 댓글 수가 0이면 버튼 클릭하지 않고 빈 리스트 반환 (크롤링 시간 단축)
+    if comment_count is not None and comment_count == 0:
+        return comments
     
     # 댓글 버튼 찾기
     comment_button_selectors = [

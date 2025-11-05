@@ -654,12 +654,17 @@ def crawl_post_detail_mobile(
             
             # 댓글 추출
             comment_count = metadata.comments
-            comments = extract_comments(page)
             
-            # 댓글 수가 0 이상인데 수집 실패한 경우 재시도
-            if comment_count > 0 and len(comments) == 0:
-                time.sleep(2)
-                comments = extract_comments(page)
+            # 댓글 수가 0이면 댓글 수집하지 않음 (크롤링 시간 단축)
+            if comment_count == 0:
+                comments = []
+            else:
+                comments = extract_comments(page, comment_count=comment_count)
+                
+                # 댓글 수가 0 이상인데 수집 실패한 경우 재시도
+                if comment_count > 0 and len(comments) == 0:
+                    time.sleep(2)
+                    comments = extract_comments(page, comment_count=comment_count)
             
             # Post 객체 생성
             post = Post(
