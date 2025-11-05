@@ -611,17 +611,17 @@ def crawl_post_detail_mobile(
                     raise TimeoutError(f"페이지 로딩 타임아웃: {post_url}")
             
             # 본문 로딩 대기 (중요: 네이버 블로그는 동적 로딩)
-            time.sleep(2)  # 초기 로딩 대기
+            time.sleep(1.0)  # 초기 로딩 대기 (1.5초에서 1.0초로 단축)
             
             # 본문이 로드될 때까지 대기
             try:
-                # 본문 컨테이너가 나타날 때까지 대기
-                page.wait_for_selector('.se-main-container, .se-component-content, #postViewArea, .post-view-area, .post-content', timeout=10000)
+                # 본문 컨테이너가 나타날 때까지 대기 (타임아웃 단축)
+                page.wait_for_selector('.se-main-container, .se-component-content, #postViewArea, .post-view-area, .post-content', timeout=3000)
             except Exception:
                 # 선택자가 없어도 계속 진행
                 pass
             
-            time.sleep(1)  # 추가 안정화 대기
+            time.sleep(0.3)  # 추가 안정화 대기 (0.5초에서 0.3초로 단축)
             
             # Post ID 추출
             post_id = extract_post_id_from_url(post_url)
@@ -658,13 +658,16 @@ def crawl_post_detail_mobile(
             # 댓글 수가 0이면 댓글 수집하지 않음 (크롤링 시간 단축)
             if comment_count == 0:
                 comments = []
+                is_secret_only = False
             else:
-                comments = extract_comments(page, comment_count=comment_count)
+                comments, is_secret_only = extract_comments(page, comment_count=comment_count)
                 
                 # 댓글 수가 0 이상인데 수집 실패한 경우 재시도
-                if comment_count > 0 and len(comments) == 0:
-                    time.sleep(2)
-                    comments = extract_comments(page, comment_count=comment_count)
+                # 단, 비밀 댓글이면 재시도하지 않음 (비밀 댓글은 이미 건너뛰기 처리됨)
+                if comment_count > 0 and len(comments) == 0 and not is_secret_only:
+                    # 비밀 댓글이 아닌 경우에만 재시도
+                    time.sleep(1)  # 재시도 전 대기 시간 단축
+                    comments, is_secret_only = extract_comments(page, comment_count=comment_count)
             
             # Post 객체 생성
             post = Post(

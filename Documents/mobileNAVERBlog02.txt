@@ -46,6 +46,7 @@ title div 요소
 글 들어가면 이 버튼 눌렀을 때 댓글 보임/댓글 요소
 <button type="button" class="comment_btn__TUucZ" data-click-area="pst.re"><span class="icon__seNf8"><span class="blind">댓글</span></span><span class="num__OVfhz">4</span></button>
 댓글 갯수가 0 이상인 경우에 수집이 안된 경우만 재시도
+댓글 갯수가 0인 경우에는 버튼 누르지 않고, 댓글 수집 안하도록 - 크롤링 시간 단축
 
 댓글 닉네임 요소
 <span class="u_cbox_nick">Today Info</span>

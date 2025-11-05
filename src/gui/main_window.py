@@ -500,7 +500,8 @@ class MainWindow:
                     self.checkpoint_manager,
                     delay=0.5,
                     timeout=30,
-                    should_stop=self.should_stop
+                    should_stop=self.should_stop,
+                    save_interval=self.save_interval
                 )
                 total_blogs = 0
             else:
@@ -520,7 +521,8 @@ class MainWindow:
                     self.checkpoint_manager,
                     delay=0.5,
                     timeout=30,
-                    should_stop=self.should_stop
+                    should_stop=self.should_stop,
+                    save_interval=self.save_interval
                 )
                 total_blogs = len(blog_ids)
             

@@ -4,7 +4,7 @@ HTML 파싱 모듈
 """
 import re
 import time
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from playwright.sync_api import Page
 
 from src.models import PostMetadata, PostContent, Comment
@@ -112,13 +112,17 @@ def extract_tags(page: Page) -> List[str]:
     return list(set(tags))  # 중복 제거
 
 
-def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Comment]:
-    """댓글 추출 (댓글 버튼 클릭 후)"""
+def extract_comments(page: Page, comment_count: Optional[int] = None) -> Tuple[List[Comment], bool]:
+    """댓글 추출 (댓글 버튼 클릭 후)
+    
+    Returns:
+        (comments, is_secret_only): 댓글 리스트와 비밀 댓글 여부
+    """
     comments = []
     
     # 댓글 수가 0이면 버튼 클릭하지 않고 빈 리스트 반환 (크롤링 시간 단축)
     if comment_count is not None and comment_count == 0:
-        return comments
+        return comments, False
     
     # 댓글 버튼 찾기
     comment_button_selectors = [
@@ -138,70 +142,168 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
             continue
     
     if not comment_button:
-        return comments
+        return comments, False
     
     # 댓글 버튼 클릭
     try:
         comment_button.click()
-        # 최소 대기 후 즉시 비밀 댓글 확인 (빠른 패스)
-        time.sleep(0.5)  # 댓글 영역 로딩 최소 대기
+        # 댓글 영역이 로드될 때까지 최소 대기 (비밀 댓글 확인을 위해)
+        # 짧은 대기 후 즉시 비밀 댓글 확인 시도
     except Exception:
-        return comments
+        return comments, False
     
     # 비밀 댓글 확인 (모든 댓글이 비밀 댓글이면 빠르게 패스)
+    # 댓글 영역이 로드될 때까지 짧은 대기 후 확인
     try:
+        # 최소 대기 (댓글 영역 로딩 대기) - 0.3초로 조정
+        time.sleep(0.3)  # 댓글 영역 로딩 최소 대기
+        
+        # 댓글 영역이 로드될 때까지 최대 1초까지 대기 (0.1초 간격으로 확인)
+        for _ in range(7):  # 최대 7번 시도 (0.3 + 0.1*7 = 1.0초)
+            has_comment_area = page.evaluate("""() => {
+                // 먼저 페이지 전체에서 "비밀 댓글입니다" 확인 (빠른 확인)
+                if (document.body.textContent.includes('비밀 댓글입니다.')) {
+                    return true;  // 비밀 댓글이 있으면 즉시 true 반환
+                }
+                
+                const selectors = [
+                    '#naverComment_wai_u_cbox_content_wrap_tabpanel',
+                    '[role="tabpanel"]',
+                    '.u_cbox_list',
+                    '.u_cbox_content_wrap',
+                    '#cbox_module'
+                ];
+                for (const selector of selectors) {
+                    const elem = document.querySelector(selector);
+                    if (elem && elem.textContent && elem.textContent.trim().length > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }""")
+            
+            if has_comment_area:
+                break  # 댓글 영역이 로드되었으면 중단
+            
+            time.sleep(0.1)  # 추가 대기 (0.1초로 단축)
+        
         is_secret_only = page.evaluate("""() => {
-            // 댓글 영역 전체 텍스트 확인
-            const commentArea = document.querySelector(
-                '#naverComment_wai_u_cbox_content_wrap_tabpanel, [role="tabpanel"], .u_cbox_list'
-            );
+            // 전체 페이지에서 "비밀 댓글입니다." 텍스트 확인 (빠른 확인)
+            const pageText = document.body.textContent || '';
+            if (!pageText.includes('비밀 댓글입니다.')) {
+                return false;  // 비밀 댓글이 없으면 false
+            }
+            
+            // 댓글 영역 전체 텍스트 확인 (빠른 확인)
+            // 여러 선택자로 댓글 영역 찾기
+            const selectors = [
+                '#naverComment_wai_u_cbox_content_wrap_tabpanel',
+                '[role="tabpanel"]',
+                '.u_cbox_list',
+                '.u_cbox_content_wrap',
+                '#cbox_module',
+                '.u_cbox',
+                '[id*="comment"]',
+                '[class*="comment"]'
+            ];
+            
+            let commentArea = null;
+            for (const selector of selectors) {
+                commentArea = document.querySelector(selector);
+                if (commentArea) break;
+            }
+            
+            // 댓글 영역을 찾지 못했어도 페이지에 "비밀 댓글입니다"가 있으면 확인
             if (!commentArea) {
+                // 전체 페이지에서 댓글 관련 요소 찾기
+                const allComments = document.querySelectorAll('li, div, span');
+                let secretFound = 0;
+                let normalFound = 0;
+                for (let i = 0; i < Math.min(allComments.length, 50); i++) {
+                    const elem = allComments[i];
+                    const text = elem.textContent || '';
+                    if (text.includes('비밀 댓글입니다.')) {
+                        secretFound++;
+                        // 비밀 댓글 텍스트가 있고 다른 내용이 거의 없으면
+                        if (text.trim().length < 50 && text.includes('비밀 댓글입니다.')) {
+                            return true;  // 비밀 댓글로 판단
+                        }
+                    }
+                    // 일반 댓글 확인 (닉네임이나 내용이 있는 경우)
+                    if (elem.querySelector('.u_cbox_nick, .u_cbox_contents') && !text.includes('비밀 댓글입니다.')) {
+                        normalFound++;
+                    }
+                }
+                // 비밀 댓글만 있고 일반 댓글이 없으면
+                if (secretFound > 0 && normalFound === 0) {
+                    return true;
+                }
                 return false;
             }
             
             const areaText = commentArea.textContent || '';
             
-            // "비밀 댓글입니다." 텍스트 확인
+            // "비밀 댓글입니다." 텍스트 확인 (빠른 확인)
             if (!areaText.includes('비밀 댓글입니다.')) {
                 return false;  // 비밀 댓글이 없으면 false
             }
             
-            // 댓글 아이템 수 확인
-            const commentItems = commentArea.querySelectorAll('li.u_cbox_comment, .u_cbox_comment');
+            // 댓글 아이템 수 확인 (빠른 확인)
+            const commentItems = commentArea.querySelectorAll('li.u_cbox_comment, .u_cbox_comment, .u_cbox_list_item, li');
             const commentCount = commentItems.length;
             
             if (commentCount === 0) {
+                // 댓글 아이템이 없어도 영역 텍스트에 "비밀 댓글입니다"만 있으면
+                const lines = areaText.split(/\\n|\\r/).filter(line => line.trim().length > 0);
+                const secretLines = lines.filter(line => line.includes('비밀 댓글입니다.')).length;
+                if (secretLines > 0 && lines.length <= secretLines * 2) {  // 비밀 댓글 관련 텍스트가 대부분이면
+                    return true;
+                }
                 return false;
             }
             
-            // 각 댓글 아이템 확인
+            // 빠른 확인: 첫 3개 댓글만 확인 (더 빠른 확인)
+            // 첫 3개가 모두 비밀 댓글이면 전체가 비밀 댓글일 가능성 높음
             let secretCount = 0;
             let hasNormalComment = false;
             
-            commentItems.forEach(item => {
+            const checkCount = Math.min(commentCount, 3);  // 최대 3개만 확인 (더 빠르게)
+            for (let i = 0; i < checkCount; i++) {
+                const item = commentItems[i];
+                if (!item) continue;
                 const itemText = item.textContent || '';
                 // 비밀 댓글 확인
                 if (itemText.includes('비밀 댓글입니다.')) {
                     secretCount++;
                 } else {
                     // 일반 댓글 확인 (닉네임이나 내용이 있으면)
-                    const hasNick = item.querySelector('span.u_cbox_nick');
-                    const hasContent = item.querySelector('span.u_cbox_contents');
+                    const hasNick = item.querySelector('span.u_cbox_nick, .u_cbox_nick');
+                    const hasContent = item.querySelector('span.u_cbox_contents, .u_cbox_contents');
                     if (hasNick || hasContent) {
                         const nickText = hasNick ? (hasNick.textContent || '').trim() : '';
                         const contentText = hasContent ? (hasContent.textContent || '').trim() : '';
                         // 비밀 댓글 텍스트가 없고 내용이 있으면 일반 댓글
                         if (nickText || (contentText && !contentText.includes('비밀 댓글입니다.'))) {
                             hasNormalComment = true;
+                            break;  // 일반 댓글 발견 시 즉시 종료
                         }
                     }
                 }
-            });
+            }
             
-            // 모든 댓글이 비밀 댓글이면 true 반환
-            // 일반 댓글이 하나도 없고, 모든 댓글이 비밀 댓글이면 건너뛰기
-            if (secretCount === commentCount && commentCount > 0 && !hasNormalComment) {
-                return true;
+            // 앞부분 3개가 모두 비밀 댓글이면 전체가 비밀 댓글일 가능성 높음
+            if (secretCount === checkCount && checkCount > 0 && !hasNormalComment) {
+                return true;  // 빠르게 판단하여 true 반환
+            }
+            
+            // 전체 영역 텍스트에서도 확인 (댓글 아이템이 적을 때)
+            if (commentCount <= 3 && areaText.includes('비밀 댓글입니다.') && !hasNormalComment) {
+                // 전체 텍스트가 "비밀 댓글입니다."만 포함하고 다른 내용이 거의 없으면
+                const lines = areaText.split(/\\n|\\r/).filter(line => line.trim().length > 0);
+                const secretLines = lines.filter(line => line.includes('비밀 댓글입니다.')).length;
+                if (secretLines >= lines.length * 0.8 || (secretLines > 0 && lines.length <= secretLines * 2)) {  // 80% 이상이 비밀 댓글 관련 텍스트면
+                    return true;
+                }
             }
             
             return false;
@@ -209,7 +311,7 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
         
         if is_secret_only:
             print("[단계] 모든 댓글이 비밀 댓글입니다. 댓글 수집 건너뛰기 (크롤링 시간 단축)")
-            return comments  # 즉시 리턴 (추가 대기 없음)
+            return comments, True  # 즉시 리턴 (추가 대기 없음), 비밀 댓글 플래그 반환
     except Exception as e:
         print(f"[경고] 비밀 댓글 확인 실패: {e}")
         pass  # 비밀 댓글 확인 실패 시 정상 진행
@@ -344,7 +446,7 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
         except Exception:
             pass
     
-    return comments
+    return comments, False
 
 
 def extract_content(page: Page) -> PostContent:
