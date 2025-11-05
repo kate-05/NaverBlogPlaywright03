@@ -22,7 +22,8 @@ def crawl_multiple_blog_ids(
     timeout: int = 30,
     should_stop: Optional[Callable[[], bool]] = None,
     existing_blog_progress: Optional[List[dict]] = None,
-    save_interval: int = 10
+    save_interval: int = 10,
+    progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> List[Post]:
     """다중 블로그 크롤링"""
     all_posts = []
@@ -53,6 +54,13 @@ def crawl_multiple_blog_ids(
             "status": "running"
         })
     
+    # 전체 포스트 수 계산 (진행상황 표시용)
+    total_posts_count = 0
+    for bp in job_data.get("blog_progress", []):
+        all_urls = bp.get("all_post_urls", [])
+        if all_urls:
+            total_posts_count += len(all_urls)
+    
     # 각 블로그 크롤링
     for idx, blog_id in enumerate(blog_ids, 1):
         # should_stop 확인
@@ -70,6 +78,10 @@ def crawl_multiple_blog_ids(
                 })
             checkpoint_manager.save_checkpoint(job_data, all_posts[-100:] if all_posts else [])
             return all_posts
+        
+        # 진행상황 업데이트 (블로그 시작)
+        if progress_callback:
+            progress_callback(idx - 1, len(blog_ids))
         
         print(f"\n[단계] === 블로그 {idx}/{len(blog_ids)}: {blog_id} ===")
         
@@ -124,6 +136,26 @@ def crawl_multiple_blog_ids(
                     saved_count_in_callback += len(posts_to_save)
                     print(f"[단계] {len(posts_to_save)}개 포스트 저장 완료. (총 저장된 포스트: {total_saved_posts}개)")
             
+            # 진행상황 콜백 정의 (블로그 내 포스트 크롤링 진행상황)
+            post_progress_callback = None
+            if progress_callback:
+                # 블로그별 진행상황 계산을 위한 콜백
+                def create_post_progress_callback(blog_idx, total_blogs):
+                    def callback(current_post, total_posts):
+                        # 전체 진행상황 계산: 블로그 진행률 + 현재 블로그 내 포스트 진행률
+                        # 블로그 단위로 진행상황 표시 (블로그 수 기준)
+                        # 현재 블로그 내 포스트 진행률을 블로그 진행률에 반영
+                        if total_posts > 0:
+                            post_progress = current_post / total_posts
+                            # 전체 진행률 = (완료된 블로그 수 + 현재 블로그 진행률) / 전체 블로그 수
+                            # post_progress는 0~1 사이이므로, 이를 블로그 단위로 변환
+                            overall_current = blog_idx - 1 + post_progress
+                            overall_total = total_blogs
+                            progress_callback(overall_current, overall_total)
+                    return callback
+                
+                post_progress_callback = create_post_progress_callback(idx, len(blog_ids))
+            
             # 블로그 크롤링 (저장 콜백 전달)
             blog_info, blog_posts = crawl_by_blog_id(
                 blog_id=blog_id,
@@ -134,7 +166,8 @@ def crawl_multiple_blog_ids(
                 all_post_urls=all_post_urls if all_post_urls else None,
                 crawled_urls=crawled_urls if crawled_urls else None,
                 save_callback=save_posts,
-                save_interval=save_interval
+                save_interval=save_interval,
+                progress_callback=post_progress_callback
             )
             
             # 전체 링크 목록 저장 (Phase 1에서 수집된 전체 링크 또는 재개 모드에서 로드한 링크)
@@ -176,6 +209,10 @@ def crawl_multiple_blog_ids(
             if blog_progress["status"] == "completed":
                 job_data["processed_blog_ids"] += 1
             print(f"[단계] 블로그 {blog_id}: {len(blog_posts)}개 새 포스트 크롤링됨 (총 {crawled_urls_count}/{all_urls_count}개)")
+            
+            # 진행상황 업데이트 (블로그 완료)
+            if progress_callback:
+                progress_callback(idx, len(blog_ids))
             
             # 남은 포스트 저장 (저장 간격 미만)
             if all_posts and len(all_posts) > 0:
@@ -252,7 +289,8 @@ def resume_crawling(
     delay: float = 0.5,
     timeout: int = 30,
     should_stop: Optional[Callable[[], bool]] = None,
-    save_interval: int = 10
+    save_interval: int = 10,
+    progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> List[Post]:
     """체크포인트에서 크롤링 재개"""
     # 체크포인트 로드
@@ -318,7 +356,8 @@ def resume_crawling(
         timeout=timeout,
         should_stop=should_stop,
         existing_blog_progress=blog_progress,  # 기존 진행 상황 전달
-        save_interval=save_interval
+        save_interval=save_interval,
+        progress_callback=progress_callback
     )
     
     # 기존 포스트와 병합

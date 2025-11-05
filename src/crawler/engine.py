@@ -708,7 +708,8 @@ def crawl_by_blog_id(
     all_post_urls: Optional[List[str]] = None,
     crawled_urls: Optional[List[str]] = None,
     save_callback: Optional[Callable[[List[Post]], None]] = None,
-    save_interval: int = 10
+    save_interval: int = 10,
+    progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> Tuple[dict, List[Post]]:
     """
     블로그 ID 기반 크롤링
@@ -848,6 +849,11 @@ def crawl_by_blog_id(
             try:
                 current_idx = crawled_count + idx
                 print(f"[단계] [{current_idx}/{total_urls}] 포스트 크롤링 중...")
+                
+                # 진행상황 업데이트
+                if progress_callback:
+                    progress_callback(current_idx, total_urls)
+                
                 post = crawl_post_detail_mobile(page, post_url, timeout, blog_id)
                 posts.append(post)
                 

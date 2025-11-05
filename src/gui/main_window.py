@@ -501,7 +501,8 @@ class MainWindow:
                     delay=0.5,
                     timeout=30,
                     should_stop=self.should_stop,
-                    save_interval=self.save_interval
+                    save_interval=self.save_interval,
+                    progress_callback=self.update_progress
                 )
                 total_blogs = 0
             else:
@@ -522,7 +523,8 @@ class MainWindow:
                     delay=0.5,
                     timeout=30,
                     should_stop=self.should_stop,
-                    save_interval=self.save_interval
+                    save_interval=self.save_interval,
+                    progress_callback=self.update_progress
                 )
                 total_blogs = len(blog_ids)
             
