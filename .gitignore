@@ -11,3 +11,7 @@ __pycache__/
 *.pyd
 .Python
 
+# 크롤링 결과 및 체크포인트
+checkpoints/
+output/
+
