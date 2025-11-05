@@ -416,7 +416,8 @@ class MainWindow:
                     output_path,
                     self.checkpoint_manager,
                     delay=0.5,
-                    timeout=30
+                    timeout=30,
+                    should_stop=self.should_stop
                 )
                 total_blogs = 0
             else:

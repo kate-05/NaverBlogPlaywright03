@@ -696,7 +696,9 @@ def crawl_by_blog_id(
     start_date: Optional[str] = None,
     delay: float = 0.5,
     timeout: int = 30,
-    should_stop: Optional[Callable[[], bool]] = None
+    should_stop: Optional[Callable[[], bool]] = None,
+    all_post_urls: Optional[List[str]] = None,
+    crawled_urls: Optional[List[str]] = None
 ) -> Tuple[dict, List[Post]]:
     """
     블로그 ID 기반 크롤링
@@ -708,6 +710,8 @@ def crawl_by_blog_id(
         delay: 요청 간 딜레이 (초)
         timeout: 페이지 로딩 타임아웃 (초)
         should_stop: 중단 확인 콜백 함수
+        all_post_urls: 전체 포스트 링크 목록 (재개 모드에서 사용)
+        crawled_urls: 이미 크롤링된 포스트 URL 목록 (재개 모드에서 사용)
     
     Returns:
         Tuple[블로그 메타데이터, 포스트 목록]
@@ -724,81 +728,130 @@ def crawl_by_blog_id(
     if timeout > 300:
         timeout = 300
     
-    # 브라우저 초기화
-    playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=False)  # headful 모드
+    # 블로그 메타데이터 수집
+    blog_info = {
+        'blog_id': blog_id,
+        'blog_name': blog_id,
+        'author_nickname': blog_id,
+        'total_posts': None,
+        'created_at': None
+    }
     
-    # 모바일 디바이스 설정 (iPhone 12)
-    device = playwright.devices['iPhone 12']
-    context = browser.new_context(**device)
-    page = context.new_page()
+    # 재개 모드: 전체 링크 목록이 이미 있는 경우
+    if all_post_urls:
+        post_urls = all_post_urls
+        print(f"[단계] 재개 모드: 체크포인트에서 전체 링크 목록 {len(post_urls)}개 로드")
+        # 재개 모드에서는 브라우저 초기화를 나중에 (Phase 2에서)
+        browser = None
+        playwright = None
+        page = None
+    else:
+        # 브라우저 초기화
+        playwright = sync_playwright().start()
+        browser = playwright.chromium.launch(headless=False)  # headful 모드
+        
+        # 모바일 디바이스 설정 (iPhone 12)
+        device = playwright.devices['iPhone 12']
+        context = browser.new_context(**device)
+        page = context.new_page()
     
     try:
-        # 블로그 메인 페이지 접속
-        blog_main_url = f"https://m.blog.naver.com/{blog_id}"
-        print(f"[단계] 블로그 메인 페이지 접속: {blog_main_url}")
-        page.goto(blog_main_url, wait_until='domcontentloaded', timeout=timeout * 1000)
-        time.sleep(2)
+        # 재개 모드가 아닐 때만 블로그 존재 여부 확인
+        if not all_post_urls:
+            # 블로그 메인 페이지 접속
+            blog_main_url = f"https://m.blog.naver.com/{blog_id}"
+            print(f"[단계] 블로그 메인 페이지 접속: {blog_main_url}")
+            page.goto(blog_main_url, wait_until='domcontentloaded', timeout=timeout * 1000)
+            time.sleep(2)
+            
+            # 블로그 존재 여부 확인
+            error_indicators = page.locator('.error, .not-found, .error-page').first
+            if error_indicators.count() > 0:
+                raise BlogNotFoundError(f"블로그를 찾을 수 없습니다: {blog_id}")
         
-        # 블로그 존재 여부 확인
-        error_indicators = page.locator('.error, .not-found, .error-page').first
-        if error_indicators.count() > 0:
-            raise BlogNotFoundError(f"블로그를 찾을 수 없습니다: {blog_id}")
+        if not all_post_urls:
+            # Phase 1: 링크 수집
+            post_list_url = f"https://m.blog.naver.com/{blog_id}?categoryNo=0&listStyle=post&tab=1"
+            print(f"[단계] 포스트 목록 페이지 접속: {post_list_url}")
+            page.goto(post_list_url, wait_until='domcontentloaded', timeout=timeout * 1000)
+            time.sleep(5)  # 페이지 로딩 대기
+            
+            post_urls = _collect_all_post_links(page, blog_id, max_posts, timeout)
+            
+            if not post_urls:
+                print("[경고] 수집된 링크가 없습니다")
+                return blog_info, []
         
-        # 블로그 메타데이터 수집
-        blog_info = {
-            'blog_id': blog_id,
-            'blog_name': blog_id,
-            'author_nickname': blog_id,
-            'total_posts': None,
-            'created_at': None
-        }
-        
-        # 포스트 목록 페이지 접속 (빠른 스크롤을 위한 링크 타입 사용)
-        post_list_url = f"https://m.blog.naver.com/{blog_id}?categoryNo=0&listStyle=post&tab=1"
-        print(f"[단계] 포스트 목록 페이지 접속: {post_list_url}")
-        page.goto(post_list_url, wait_until='domcontentloaded', timeout=timeout * 1000)
-        time.sleep(5)  # 페이지 로딩 대기
-        
-        # Phase 1: 링크 수집
-        post_urls = _collect_all_post_links(page, blog_id, max_posts, timeout)
-        
-        if not post_urls:
-            print("[경고] 수집된 링크가 없습니다")
-            return blog_info, []
+        # 전체 링크 목록을 blog_info에 저장 (재개 시 사용)
+        blog_info['all_post_urls'] = post_urls
+        blog_info['total_post_urls'] = len(post_urls)
         
         # should_stop 확인
         if should_stop and should_stop():
             print("[경고] 크롤링이 중단되었습니다. 브라우저 종료 중...")
-            browser.close()
-            playwright.stop()
+            if browser:
+                browser.close()
+            if playwright:
+                playwright.stop()
             return blog_info, []
         
         # Phase 2: 상세 크롤링
+        # 재개 모드인 경우 브라우저 초기화 (이제 필요함)
+        if all_post_urls and (browser is None or page is None):
+            playwright = sync_playwright().start()
+            browser = playwright.chromium.launch(headless=False)  # headful 모드
+            device = playwright.devices['iPhone 12']
+            context = browser.new_context(**device)
+            page = context.new_page()
+            print(f"[단계] 재개 모드: 브라우저 초기화 완료")
+        
+        # 이미 크롤링된 포스트 URL 목록이 있으면 제외
+        crawled_urls_list = crawled_urls or []
+        if crawled_urls_list:
+            crawled_urls_set = set(crawled_urls_list)
+            post_urls = [url for url in post_urls if url not in crawled_urls_set]
+            skipped_count = len(crawled_urls_list)
+            print(f"[단계] 이미 크롤링된 포스트 {skipped_count}개 건너뛰기 (재개 모드)")
+            print(f"[단계] 남은 포스트 {len(post_urls)}개 크롤링 시작")
+        
+        if not post_urls:
+            print("[경고] 크롤링할 남은 포스트가 없습니다")
+            if browser:
+                browser.close()
+            if playwright:
+                playwright.stop()
+            blog_info['total_posts'] = 0
+            return blog_info, []
+        
         posts = []
-        total_urls = len(post_urls)
+        total_urls = blog_info['total_post_urls']  # 전체 링크 수 (원래 순서 표시용)
+        crawled_count = len(crawled_urls_list)
         
         for idx, post_url in enumerate(post_urls, 1):
             # should_stop 확인
             if should_stop and should_stop():
-                print(f"[경고] 크롤링이 중단되었습니다. ({idx}/{total_urls})")
+                current_idx = crawled_count + idx
+                print(f"[경고] 크롤링이 중단되었습니다. ({current_idx}/{total_urls})")
                 break
             
             try:
-                print(f"[단계] [{idx}/{total_urls}] 포스트 크롤링 중...")
+                current_idx = crawled_count + idx
+                print(f"[단계] [{current_idx}/{total_urls}] 포스트 크롤링 중...")
                 post = crawl_post_detail_mobile(page, post_url, timeout, blog_id)
                 posts.append(post)
                 
                 # 딜레이
-                if idx < total_urls:
+                if idx < len(post_urls):
                     time.sleep(delay)
                     
             except Exception as e:
                 print(f"[오류] 포스트 크롤링 실패: {post_url}, 오류: {e}")
                 continue
         
-        browser.close()
-        playwright.stop()
+        if browser:
+            browser.close()
+        if playwright:
+            playwright.stop()
         
         blog_info['total_posts'] = len(posts)
         print(f"[단계] === 크롤링 완료: 총 {len(posts)}개 포스트 수집 ===")
@@ -806,7 +859,9 @@ def crawl_by_blog_id(
         return blog_info, posts
         
     except Exception as e:
-        browser.close()
-        playwright.stop()
+        if browser:
+            browser.close()
+        if playwright:
+            playwright.stop()
         raise
 
