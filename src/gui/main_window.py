@@ -10,6 +10,8 @@ from typing import Tuple
 import threading
 import sys
 import os
+import io
+import queue
 
 # 프로젝트 루트를 path에 추가
 project_root = Path(__file__).parent.parent.parent
@@ -17,6 +19,38 @@ sys.path.insert(0, str(project_root))
 
 from src.crawler.batch_crawler import crawl_multiple_blog_ids, resume_crawling
 from src.utils.checkpoint_manager import CheckpointManager
+
+
+class StdoutRedirector:
+    """표준 출력 리다이렉터 - GUI 로그로 전달"""
+    def __init__(self, log_callback, queue_obj):
+        self.log_callback = log_callback
+        self.queue = queue_obj
+        self.original_stdout = sys.stdout
+        self.original_stderr = sys.stderr
+    
+    def write(self, text):
+        """출력 텍스트를 큐에 추가"""
+        if text.strip():  # 빈 줄 제외
+            self.queue.put(text)
+            # 원본 출력도 유지 (디버깅용)
+            try:
+                self.original_stdout.write(text)
+                self.original_stdout.flush()
+            except:
+                pass
+    
+    def flush(self):
+        """플러시 (필요 시 원본 출력 플러시)"""
+        try:
+            self.original_stdout.flush()
+        except:
+            pass
+    
+    def restore(self):
+        """원본 출력 복원"""
+        sys.stdout = self.original_stdout
+        sys.stderr = self.original_stderr
 
 
 class MainWindow:
@@ -35,6 +69,10 @@ class MainWindow:
         
         # 설정 변수
         self.save_interval = 10
+        
+        # 표준 출력 리다이렉션 관련
+        self.stdout_redirector = None
+        self.log_queue = None
         
         # 화면 초기화
         self.show_main_screen()
@@ -275,6 +313,10 @@ class MainWindow:
             messagebox.showerror("오류", error_msg)
             return
         
+        # 크롤링 상태 플래그 설정
+        self.is_crawling = True
+        self.stop_requested = False
+        
         # 위젯 변수를 미리 읽어서 저장 (스레드 안전을 위해)
         self.crawl_params = {
             'resume_mode': self.resume_var.get(),
@@ -304,7 +346,7 @@ class MainWindow:
             widget.destroy()
         
         self.stop_requested = False
-        self.is_crawling = True
+        # is_crawling은 start_crawling에서 이미 설정됨
         
         # 메뉴바
         menubar = tk.Menu(self.root)
@@ -396,9 +438,50 @@ class MainWindow:
         """중단 확인 콜백"""
         return self.stop_requested
     
+    def setup_stdout_redirect(self):
+        """표준 출력 리다이렉션 설정"""
+        if self.log_queue is None:
+            self.log_queue = queue.Queue()
+        
+        # 표준 출력 리다이렉터 생성
+        self.stdout_redirector = StdoutRedirector(self.log_message, self.log_queue)
+        sys.stdout = self.stdout_redirector
+        sys.stderr = self.stdout_redirector
+        
+        # 큐에서 로그 읽기 시작
+        self.root.after(100, self.process_log_queue)
+    
+    def restore_stdout(self):
+        """표준 출력 복원"""
+        if self.stdout_redirector:
+            self.stdout_redirector.restore()
+            self.stdout_redirector = None
+    
+    def process_log_queue(self):
+        """로그 큐에서 메시지 읽어서 GUI에 표시"""
+        try:
+            while True:
+                try:
+                    message = self.log_queue.get_nowait()
+                    # 줄바꿈 제거하고 log_message로 전달
+                    message = message.rstrip('\n\r')
+                    if message:
+                        self.log_message(message, error=False)
+                except queue.Empty:
+                    break
+        except Exception:
+            pass
+        
+        # 계속 체크 (크롤링 중일 때만)
+        if self.is_crawling:
+            self.root.after(100, self.process_log_queue)
+    
     def crawl_worker(self):
         """크롤링 워커 스레드"""
         try:
+            # 표준 출력 리다이렉션 설정
+            self.setup_stdout_redirect()
+            
             # 미리 읽은 파라미터 사용 (스레드 안전)
             params = getattr(self, 'crawl_params', {})
             resume_mode = params.get('resume_mode', False)
@@ -453,6 +536,11 @@ class MainWindow:
             # 메인 스레드에서 에러 다이얼로그 표시
             self.root.after(0, lambda: messagebox.showerror("오류", f"크롤링 중 오류가 발생했습니다:\n{error_msg}"))
             self.root.after(0, self.show_main_screen)
+        finally:
+            # 크롤링 상태 플래그 해제
+            self.is_crawling = False
+            # 표준 출력 복원
+            self.restore_stdout()
     
     def show_result_screen(self, output_path: str, total_blogs: int):
         """결과 화면"""
