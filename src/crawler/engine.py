@@ -703,7 +703,9 @@ def crawl_by_blog_id(
     timeout: int = 30,
     should_stop: Optional[Callable[[], bool]] = None,
     all_post_urls: Optional[List[str]] = None,
-    crawled_urls: Optional[List[str]] = None
+    crawled_urls: Optional[List[str]] = None,
+    save_callback: Optional[Callable[[List[Post]], None]] = None,
+    save_interval: int = 10
 ) -> Tuple[dict, List[Post]]:
     """
     블로그 ID 기반 크롤링
@@ -829,6 +831,7 @@ def crawl_by_blog_id(
             return blog_info, []
         
         posts = []
+        saved_urls = []  # 저장 콜백에서 저장된 포스트 URL 추적
         total_urls = blog_info['total_post_urls']  # 전체 링크 수 (원래 순서 표시용)
         crawled_count = len(crawled_urls_list)
         
@@ -845,6 +848,17 @@ def crawl_by_blog_id(
                 post = crawl_post_detail_mobile(page, post_url, timeout, blog_id)
                 posts.append(post)
                 
+                # 저장 간격마다 저장 콜백 호출
+                if save_callback and len(posts) >= save_interval:
+                    print(f"[단계] 저장 간격 도달: {len(posts)}개 포스트 저장 중...")
+                    # 저장할 포스트의 URL 저장
+                    saved_urls.extend([p.url for p in posts])
+                    save_callback(posts.copy())
+                    posts.clear()  # 저장 후 메모리 비우기
+                    import gc
+                    gc.collect()  # 가비지 컬렉션 강제 실행
+                    print(f"[단계] 메모리 비우기 완료.")
+                
                 # 딜레이
                 if idx < len(post_urls):
                     time.sleep(delay)
@@ -853,13 +867,21 @@ def crawl_by_blog_id(
                 print(f"[오류] 포스트 크롤링 실패: {post_url}, 오류: {e}")
                 continue
         
+        # 저장된 URL 정보를 blog_info에 추가
+        blog_info['saved_urls'] = saved_urls
+        
         if browser:
             browser.close()
         if playwright:
             playwright.stop()
         
+        # 저장 콜백에서 저장된 포스트는 제외하고 남은 포스트만 반환
+        # (저장 콜백에서 이미 저장되었으므로)
         blog_info['total_posts'] = len(posts)
-        print(f"[단계] === 크롤링 완료: 총 {len(posts)}개 포스트 수집 ===")
+        if len(posts) > 0:
+            print(f"[단계] === 크롤링 완료: 총 {len(posts)}개 포스트 남음 (이미 저장된 포스트 제외) ===")
+        else:
+            print(f"[단계] === 크롤링 완료: 모든 포스트가 저장 간격마다 저장됨 ===")
         
         return blog_info, posts
         

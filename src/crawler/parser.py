@@ -143,7 +143,8 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
     # 댓글 버튼 클릭
     try:
         comment_button.click()
-        time.sleep(3)  # 댓글 로딩 대기 (초기 로딩)
+        # 최소 대기 후 즉시 비밀 댓글 확인 (빠른 패스)
+        time.sleep(0.5)  # 댓글 영역 로딩 최소 대기
     except Exception:
         return comments
     
@@ -208,13 +209,13 @@ def extract_comments(page: Page, comment_count: Optional[int] = None) -> List[Co
         
         if is_secret_only:
             print("[단계] 모든 댓글이 비밀 댓글입니다. 댓글 수집 건너뛰기 (크롤링 시간 단축)")
-            return comments
+            return comments  # 즉시 리턴 (추가 대기 없음)
     except Exception as e:
         print(f"[경고] 비밀 댓글 확인 실패: {e}")
         pass  # 비밀 댓글 확인 실패 시 정상 진행
     
     # 추가 로딩 대기 (비밀 댓글이 아닌 경우에만)
-    time.sleep(2)
+    time.sleep(2)  # 일반 댓글 로딩 대기
     
     # JavaScript 기반 댓글 수집 (우선)
     try:

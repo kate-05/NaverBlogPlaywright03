@@ -21,10 +21,12 @@ def crawl_multiple_blog_ids(
     delay: float = 0.5,
     timeout: int = 30,
     should_stop: Optional[Callable[[], bool]] = None,
-    existing_blog_progress: Optional[List[dict]] = None
+    existing_blog_progress: Optional[List[dict]] = None,
+    save_interval: int = 10
 ) -> List[Post]:
     """다중 블로그 크롤링"""
     all_posts = []
+    total_saved_posts = 0  # 총 저장된 포스트 수
     
     # 작업 정보
     job_data = {
@@ -40,6 +42,16 @@ def crawl_multiple_blog_ids(
     # 체크포인트 생성 (재개 모드가 아닐 때만)
     if not existing_blog_progress:
         checkpoint_manager.create_checkpoint(job_data)
+    
+    # 초기 저장 (파일이 없을 때만)
+    if not Path(output_path).exists():
+        export_to_json([], output_path, {
+            "crawl_type": "blog_id",
+            "total_blog_ids": len(blog_ids),
+            "processed_blog_ids": 0,
+            "total_posts": 0,
+            "status": "running"
+        })
     
     # 각 블로그 크롤링
     for idx, blog_id in enumerate(blog_ids, 1):
@@ -88,8 +100,31 @@ def crawl_multiple_blog_ids(
         }
         
         try:
-            # 블로그 크롤링
-            # 재개 모드인 경우 crawled_urls와 all_post_urls 전달
+            # 저장된 포스트 카운트 추적
+            saved_count_in_callback = 0
+            
+            # 저장 콜백 함수 정의 (개별 포스트 크롤링 중 저장)
+            def save_posts(posts_to_save: List[Post]):
+                """포스트 저장 콜백"""
+                nonlocal total_saved_posts, saved_count_in_callback
+                if posts_to_save:
+                    export_to_json(
+                        posts_to_save,
+                        output_path,
+                        {
+                            "crawl_type": "blog_id",
+                            "total_blog_ids": job_data["total_blog_ids"],
+                            "processed_blog_ids": job_data["processed_blog_ids"],
+                            "total_posts": total_saved_posts + len(posts_to_save),
+                            "status": "running"
+                        },
+                        append=True
+                    )
+                    total_saved_posts += len(posts_to_save)
+                    saved_count_in_callback += len(posts_to_save)
+                    print(f"[단계] {len(posts_to_save)}개 포스트 저장 완료. (총 저장된 포스트: {total_saved_posts}개)")
+            
+            # 블로그 크롤링 (저장 콜백 전달)
             blog_info, blog_posts = crawl_by_blog_id(
                 blog_id=blog_id,
                 max_posts=max_posts_per_blog,
@@ -97,12 +132,20 @@ def crawl_multiple_blog_ids(
                 timeout=timeout,
                 should_stop=should_stop,
                 all_post_urls=all_post_urls if all_post_urls else None,
-                crawled_urls=crawled_urls if crawled_urls else None
+                crawled_urls=crawled_urls if crawled_urls else None,
+                save_callback=save_posts,
+                save_interval=save_interval
             )
             
             # 전체 링크 목록 저장 (Phase 1에서 수집된 전체 링크 또는 재개 모드에서 로드한 링크)
             if 'all_post_urls' in blog_info:
                 blog_progress["all_post_urls"] = blog_info['all_post_urls']
+            
+            # 저장 콜백에서 저장된 포스트 URL 추가
+            if 'saved_urls' in blog_info and blog_info['saved_urls']:
+                saved_urls = blog_info['saved_urls']
+                blog_progress["crawled_urls"].extend(saved_urls)
+                print(f"[단계] 저장 콜백에서 저장된 포스트 {len(saved_urls)}개 URL 추가")
             
             # 중복 제거 (URL 기준)
             existing_urls = {post.url for post in all_posts}
@@ -111,6 +154,7 @@ def crawl_multiple_blog_ids(
             all_posts.extend(new_posts)
             
             # 크롤링된 URL 목록 업데이트
+            # blog_posts에 있는 포스트의 URL 추가 (저장 콜백에서 저장된 것은 이미 추가됨)
             blog_progress["crawled_urls"].extend([post.url for post in blog_posts])
             blog_progress["crawled_urls"] = list(set(blog_progress["crawled_urls"]))  # 중복 제거
             
@@ -133,6 +177,11 @@ def crawl_multiple_blog_ids(
                 job_data["processed_blog_ids"] += 1
             print(f"[단계] 블로그 {blog_id}: {len(blog_posts)}개 새 포스트 크롤링됨 (총 {crawled_urls_count}/{all_urls_count}개)")
             
+            # 남은 포스트 저장 (저장 간격 미만)
+            if all_posts and len(all_posts) > 0:
+                save_posts(all_posts.copy())
+                all_posts.clear()
+            
         except Exception as e:
             print(f"[오류] 블로그 {blog_id} 크롤링 실패: {e}")
             blog_progress["status"] = "failed"
@@ -151,29 +200,49 @@ def crawl_multiple_blog_ids(
         if should_stop and should_stop():
             print(f"[경고] 크롤링이 중단되었습니다.")
             job_data["status"] = "paused"
+            # 남은 포스트 저장
             if all_posts:
-                export_to_json(all_posts, output_path, {
-                    "crawl_type": "blog_id",
-                    "total_blog_ids": job_data["total_blog_ids"],
-                    "processed_blog_ids": job_data["processed_blog_ids"],
-                    "total_posts": len(all_posts),
-                    "status": "paused",
-                    "interrupted": True
-                })
-            checkpoint_manager.save_checkpoint(job_data, all_posts[-100:] if all_posts else [])
-            return all_posts
+                export_to_json(
+                    all_posts,
+                    output_path,
+                    {
+                        "crawl_type": "blog_id",
+                        "total_blog_ids": job_data["total_blog_ids"],
+                        "processed_blog_ids": job_data["processed_blog_ids"],
+                        "total_posts": total_saved_posts + len(all_posts),
+                        "status": "paused",
+                        "interrupted": True
+                    },
+                    append=True
+                )
+                total_saved_posts += len(all_posts)
+                all_posts.clear()
+            checkpoint_manager.save_checkpoint(job_data, [])
+            return []
     
-    # 최종 저장
+    # 최종 저장 (남은 포스트)
+    if all_posts:
+        print(f"[단계] 최종 저장: {len(all_posts)}개 포스트 저장 중...")
+        export_to_json(
+            all_posts,
+            output_path,
+            {
+                "crawl_type": "blog_id",
+                "total_blog_ids": job_data["total_blog_ids"],
+                "processed_blog_ids": job_data["processed_blog_ids"],
+                "failed_blog_ids": job_data["failed_blog_ids"],
+                "total_posts": total_saved_posts + len(all_posts),
+                "status": "completed"
+            },
+            append=True
+        )
+        total_saved_posts += len(all_posts)
+        all_posts.clear()
+        print(f"[단계] 최종 저장 완료. (총 저장된 포스트: {total_saved_posts}개)")
+    
     job_data["status"] = "completed"
-    export_to_json(all_posts, output_path, {
-        "crawl_type": "blog_id",
-        "total_blog_ids": job_data["total_blog_ids"],
-        "processed_blog_ids": job_data["processed_blog_ids"],
-        "failed_blog_ids": job_data["failed_blog_ids"],
-        "total_posts": len(all_posts)
-    })
     
-    return all_posts
+    return []
 
 
 def resume_crawling(
@@ -182,7 +251,8 @@ def resume_crawling(
     checkpoint_manager: CheckpointManager,
     delay: float = 0.5,
     timeout: int = 30,
-    should_stop: Optional[Callable[[], bool]] = None
+    should_stop: Optional[Callable[[], bool]] = None,
+    save_interval: int = 10
 ) -> List[Post]:
     """체크포인트에서 크롤링 재개"""
     # 체크포인트 로드
@@ -247,7 +317,8 @@ def resume_crawling(
         delay=delay,
         timeout=timeout,
         should_stop=should_stop,
-        existing_blog_progress=blog_progress  # 기존 진행 상황 전달
+        existing_blog_progress=blog_progress,  # 기존 진행 상황 전달
+        save_interval=save_interval
     )
     
     # 기존 포스트와 병합
