@@ -69,6 +69,7 @@ class MainWindow:
         
         # 설정 변수
         self.save_interval = 10
+        self.headless = True  # 기본값: headless 모드
         
         # 표준 출력 리다이렉션 관련
         self.stdout_redirector = None
@@ -131,6 +132,15 @@ class MainWindow:
         
         ttk.Button(file_frame, text="찾기", command=self.select_file).pack(side=tk.RIGHT)
         
+        # 브라우저 옵션
+        browser_frame = ttk.LabelFrame(main_frame, text="브라우저 옵션", padding="10")
+        browser_frame.pack(fill=tk.X, pady=5)
+        
+        self.headless_var = tk.BooleanVar(value=False)  # False = headful (크롬창 보이기)
+        ttk.Checkbutton(browser_frame, text="크롬창 보이기",
+                       variable=self.headless_var,
+                       command=self.on_headless_check).pack(anchor=tk.W)
+        
         # 재개 옵션
         resume_frame = ttk.LabelFrame(main_frame, text="재개 옵션", padding="10")
         resume_frame.pack(fill=tk.X, pady=5)
@@ -185,6 +195,7 @@ class MainWindow:
         # 초기 상태 설정
         self.on_input_method_change()
         self.on_resume_check()
+        self.on_headless_check()  # 초기 headless 상태 설정
     
     def on_input_method_change(self):
         """입력 방법 변경 이벤트"""
@@ -192,6 +203,11 @@ class MainWindow:
             self.blog_id_entry.config(state='normal')
         else:
             self.blog_id_entry.config(state='disabled')
+    
+    def on_headless_check(self):
+        """크롬창 보이기 체크 이벤트"""
+        # 체크박스 상태 업데이트 (False = headful, True = headless)
+        self.headless = not self.headless_var.get()
     
     def on_resume_check(self):
         """재개 옵션 체크 이벤트"""
@@ -321,7 +337,8 @@ class MainWindow:
         self.crawl_params = {
             'resume_mode': self.resume_var.get(),
             'blog_ids': [],
-            'checkpoint_path': ''
+            'checkpoint_path': '',
+            'headless': not self.headless_var.get()  # False = headful (크롬창 보이기), True = headless
         }
         
         if self.crawl_params['resume_mode']:
@@ -489,6 +506,8 @@ class MainWindow:
             checkpoint_path = params.get('checkpoint_path', '')
             
             # 크롤링 시작
+            headless = params.get('headless', True)  # 기본값: headless
+            
             if resume_mode:
                 # 재개 모드
                 output_path = f"output/crawl_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -502,7 +521,8 @@ class MainWindow:
                     timeout=30,
                     should_stop=self.should_stop,
                     save_interval=self.save_interval,
-                    progress_callback=self.update_progress
+                    progress_callback=self.update_progress,
+                    headless=headless
                 )
                 total_blogs = 0
             else:
@@ -524,7 +544,8 @@ class MainWindow:
                     timeout=30,
                     should_stop=self.should_stop,
                     save_interval=self.save_interval,
-                    progress_callback=self.update_progress
+                    progress_callback=self.update_progress,
+                    headless=headless
                 )
                 total_blogs = len(blog_ids)
             

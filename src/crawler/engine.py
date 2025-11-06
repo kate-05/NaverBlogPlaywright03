@@ -709,7 +709,8 @@ def crawl_by_blog_id(
     crawled_urls: Optional[List[str]] = None,
     save_callback: Optional[Callable[[List[Post]], None]] = None,
     save_interval: int = 10,
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+    headless: bool = True
 ) -> Tuple[dict, List[Post]]:
     """
     블로그 ID 기반 크롤링
@@ -759,7 +760,7 @@ def crawl_by_blog_id(
     else:
         # 브라우저 초기화
         playwright = sync_playwright().start()
-        browser = playwright.chromium.launch(headless=False)  # headful 모드
+        browser = playwright.chromium.launch(headless=headless)
         
         # 모바일 디바이스 설정 (iPhone 12)
         device = playwright.devices['iPhone 12']
@@ -810,7 +811,7 @@ def crawl_by_blog_id(
         # 재개 모드인 경우 브라우저 초기화 (이제 필요함)
         if all_post_urls and (browser is None or page is None):
             playwright = sync_playwright().start()
-            browser = playwright.chromium.launch(headless=False)  # headful 모드
+            browser = playwright.chromium.launch(headless=headless)
             device = playwright.devices['iPhone 12']
             context = browser.new_context(**device)
             page = context.new_page()

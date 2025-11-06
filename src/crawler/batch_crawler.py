@@ -23,7 +23,8 @@ def crawl_multiple_blog_ids(
     should_stop: Optional[Callable[[], bool]] = None,
     existing_blog_progress: Optional[List[dict]] = None,
     save_interval: int = 10,
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+    headless: bool = True
 ) -> List[Post]:
     """다중 블로그 크롤링"""
     all_posts = []
@@ -167,7 +168,8 @@ def crawl_multiple_blog_ids(
                 crawled_urls=crawled_urls if crawled_urls else None,
                 save_callback=save_posts,
                 save_interval=save_interval,
-                progress_callback=post_progress_callback
+                progress_callback=post_progress_callback,
+                headless=headless
             )
             
             # 전체 링크 목록 저장 (Phase 1에서 수집된 전체 링크 또는 재개 모드에서 로드한 링크)
@@ -302,7 +304,8 @@ def resume_crawling(
     timeout: int = 30,
     should_stop: Optional[Callable[[], bool]] = None,
     save_interval: int = 10,
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+    headless: bool = True
 ) -> List[Post]:
     """체크포인트에서 크롤링 재개"""
     # 체크포인트 로드
@@ -369,7 +372,8 @@ def resume_crawling(
         should_stop=should_stop,
         existing_blog_progress=blog_progress,  # 기존 진행 상황 전달
         save_interval=save_interval,
-        progress_callback=progress_callback
+        progress_callback=progress_callback,
+        headless=headless
     )
     
     # 기존 포스트와 병합
