@@ -82,7 +82,7 @@ def crawl_multiple_blog_ids(
         
         # 진행상황 업데이트 (블로그 시작)
         if progress_callback:
-            progress_callback(idx - 1, len(blog_ids))
+            progress_callback(idx - 1, len(blog_ids), blog_current=idx, blog_total=len(blog_ids), post_progress=0.0)
         
         print(f"\n[단계] === 블로그 {idx}/{len(blog_ids)}: {blog_id} ===")
         
@@ -152,7 +152,11 @@ def crawl_multiple_blog_ids(
                             # post_progress는 0~1 사이이므로, 이를 블로그 단위로 변환
                             overall_current = blog_idx - 1 + post_progress
                             overall_total = total_blogs
-                            progress_callback(overall_current, overall_total)
+                            # 블로그 정보와 포스트 진행률을 함께 전달
+                            progress_callback(overall_current, overall_total, 
+                                            blog_current=blog_idx, 
+                                            blog_total=total_blogs,
+                                            post_progress=post_progress * 100)
                     return callback
                 
                 post_progress_callback = create_post_progress_callback(idx, len(blog_ids))
@@ -214,7 +218,7 @@ def crawl_multiple_blog_ids(
             
             # 진행상황 업데이트 (블로그 완료)
             if progress_callback:
-                progress_callback(idx, len(blog_ids))
+                progress_callback(idx, len(blog_ids), blog_current=idx, blog_total=len(blog_ids), post_progress=100.0)
             
             # 남은 포스트 저장 (저장 간격 미만)
             if all_posts and len(all_posts) > 0:

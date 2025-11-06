@@ -378,7 +378,7 @@ class MainWindow:
                                            maximum=100, length=400)
         self.progress_bar.pack(fill=tk.X, pady=5)
         
-        self.progress_label = ttk.Label(progress_frame, text="0% (0/0)")
+        self.progress_label = ttk.Label(progress_frame, text="0.0% (0/0)")
         self.progress_label.pack(pady=5)
         
         # 로그 영역
@@ -426,7 +426,7 @@ class MainWindow:
         # 메인 스레드에서 실행
         self.root.after(0, _log)
     
-    def update_progress(self, current: int, total: int):
+    def update_progress(self, current: float, total: int, blog_current: int = None, blog_total: int = None, post_progress: float = None):
         """진행률 업데이트 (스레드 안전)"""
         def _update():
             try:
@@ -437,7 +437,22 @@ class MainWindow:
                                 progress = (current / total) * 100
                                 if hasattr(self, 'progress_var'):
                                     self.progress_var.set(progress)
-                                self.progress_label.config(text=f"{progress:.1f}% ({current}/{total})")
+                                
+                                # 블로그 정보가 있으면 "블로그 1/1 (13.1%)" 형식으로 표시
+                                if blog_current is not None and blog_total is not None:
+                                    # post_progress가 있으면 포스트 진행률 사용, 없으면 전체 진행률 사용
+                                    display_progress = post_progress if post_progress is not None else progress
+                                    self.progress_label.config(text=f"블로그 {blog_current}/{blog_total} ({display_progress:.1f}%)")
+                                else:
+                                    # 블로그 정보가 없으면 기존 형식으로 표시
+                                    current_int = int(round(current))
+                                    total_int = int(round(total))
+                                    self.progress_label.config(text=f"{progress:.1f}% ({current_int}/{total_int})")
+                            else:
+                                if blog_current is not None and blog_total is not None:
+                                    self.progress_label.config(text=f"블로그 {blog_current}/{blog_total} (0.0%)")
+                                else:
+                                    self.progress_label.config(text="0.0% (0/0)")
             except Exception:
                 pass  # 위젯이 파괴된 경우 무시
         
