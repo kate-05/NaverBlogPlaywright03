@@ -1,0 +1,15 @@
+{
+  "checkpoint_id": "batch_20251106_005532",
+  "created_at": "2025-11-06T00:55:32.381816",
+  "last_updated": "2025-11-06T00:55:32.383815",
+  "crawl_type": "blog_id",
+  "blog_ids": [
+    "skalekd77"
+  ],
+  "total_blog_ids": 1,
+  "processed_blog_ids": 0,
+  "failed_blog_ids": 0,
+  "status": "paused",
+  "blog_progress": [],
+  "posts": []
+}

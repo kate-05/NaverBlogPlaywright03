@@ -1,0 +1,47 @@
+{
+  "checkpoint_id": "batch_20251106_185729",
+  "created_at": "2025-11-06T18:57:29.547496",
+  "last_updated": "2025-11-06T18:59:41.059027",
+  "crawl_type": "blog_id",
+  "blog_ids": [
+    "skalekd77"
+  ],
+  "total_blog_ids": 1,
+  "processed_blog_ids": 1,
+  "failed_blog_ids": 0,
+  "status": "paused",
+  "blog_progress": [
+    {
+      "blog_id": "skalekd77",
+      "status": "completed",
+      "posts_crawled": 10,
+      "started_at": "2025-11-06T18:57:29.561806",
+      "crawled_urls": [
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054257169",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220653394281",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220573082674",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054244544",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=20140922",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=223924349009",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220136354235",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220888708277",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054238709",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220572102804"
+      ],
+      "all_post_urls": [
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=20140922",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054257169",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054244544",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=223924349009",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220888708277",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054238709",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220136354235",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220653394281",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220573082674",
+        "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220572102804"
+      ],
+      "completed_at": "2025-11-06T18:59:41.047444"
+    }
+  ],
+  "posts": []
+}

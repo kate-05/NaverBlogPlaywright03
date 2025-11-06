@@ -1,0 +1,528 @@
+{
+  "crawl_info": {
+    "crawl_type": "blog_id",
+    "total_blog_ids": 1,
+    "processed_blog_ids": 0,
+    "total_posts": 10,
+    "status": "running",
+    "crawl_date": "2025-11-06T00:53:52.348954",
+    "sort_order": "crawl_order"
+  },
+  "posts": [
+    {
+      "post_id": "20140922",
+      "title": "게시물이 삭제되었어요.",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=20140922",
+      "metadata": {
+        "views": 0,
+        "likes": 0,
+        "comments": 0,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "",
+        "word_count": 0,
+        "images": [],
+        "links": [
+          "https://m.blog.naver.com/#"
+        ]
+      },
+      "comments": []
+    },
+    {
+      "post_id": "224054257169",
+      "title": "고소한 견과류 주먹밥",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054257169",
+      "metadata": {
+        "views": 0,
+        "likes": 3,
+        "comments": 1,
+        "category": null,
+        "tags": [
+          "믹스넛",
+          "초간단요리",
+          "요리레시피",
+          "다이어트식단",
+          "든든한아침",
+          "요거트볼",
+          "건강한한끼",
+          "샐러드레시피",
+          "주부일상"
+        ]
+      },
+      "content": {
+        "text": "믹스넛 다져 넣어 고소한 주먹밥 만들었어요.\n도시락으로 굿이에요.\n남편 도시락 반찬 고민하다가 오늘은\n믹스넛 주먹밥\n을 해봤어요.\n잘게 다진 견과류를 밥에 넣으면 씹는 맛도 좋고 영양도 챙길 수 있어요.\n아이 간식, 캠핑 메뉴로도 잘 어울려서 활용도 최고예요!\n#요리레시피\n#초간단요리\n#다이어트식단\n#샐러드레시피\n#든든한아침\n#건강한한끼",
+        "word_count": 43,
+        "images": [
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjUy/MDAxNzYxNDU5NjkwMzg2.JAAFZaLWHFtDoO32DWo8oaHu24-mikkbz4ZZH2JQ3vgg.FnT9Hg6BxouxJ4NUZXnOQNyLw3NBXnTywKwjDgPYBl8g.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_18_17.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjQ4/MDAxNzYxNDU5Njk4NTM1.JBWVnblfmxxSty0X9yWAnAh03jY6iUON7kMrpn67OJsg.rUF6bLeH1pSBYeEU9xi2SF-hLcR0ncn8QcKkNgMyZnwg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_21_08.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMTYw/MDAxNzYxNDYwMjg1ODA1.Sn1RAeDRUOC975Pjq8KalAH2VJ6ZZ4z6vkIDpwtCOWQg.qHvBNwsdvkWuwe7ABh6Gu0iFXvngLeqxH_Sl_MZdFKYg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_31_01.png?type=w800"
+        ],
+        "links": []
+      },
+      "comments": []
+    },
+    {
+      "post_id": "224054244544",
+      "title": "든든 요거트볼",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054244544",
+      "metadata": {
+        "views": 0,
+        "likes": 0,
+        "comments": 0,
+        "category": null,
+        "tags": [
+          "믹스넛",
+          "초간단요리",
+          "요리레시피",
+          "다이어트식단",
+          "든든한아침",
+          "요거트볼",
+          "건강한한끼",
+          "샐러드레시피",
+          "주부일상"
+        ]
+      },
+      "content": {
+        "text": "믹스넛과 요거트 넣어 든든하게 아침 준비했어요.\n달지 않아 좋아요.\n믹스넛 요거트볼\n만드는 데 1분도 안 걸려서 진짜 완소 레시피예요.\n달지 않은 플레인 요거트에 견과류랑 과일만 콕콕 올리면 끝!\n아이간식으로도 좋아요.\n바쁜 평일에도 건강한 아침 챙길 수 있어 뿌듯하네요.\n#요리레시피\n#초간단요리\n#다이어트식단\n#샐러드레시피\n#든든한아침\n#건강한한끼",
+        "word_count": 44,
+        "images": [
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfOTMg/MDAxNzYxNDU5MDk5OTE0.Ge7tlsbaUsnAsCRWPM_nFj4SER-zsIVATKW9-LPKmCMg.LcGO5JmyCcfdcP2_lULVKgZq-CxggZLld7RrAJFlmdAg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_10_31.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfNjIg/MDAxNzYxNDU5MzEzNTM5.j3eNCXHxg9UJrXqjD6Pc1i1Lw_qkdhFjeNFQyA_yBikg.Rkp2uswx2AABqMxkyr0Oy_Zb5S0luldDUg3op9pTidgg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_12_24.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfNjIg/MDAxNzYxNDU5MzE3NTQ4.JyEL_Eis6qpXiKcU6LfNYZgEa_D08l49I9_4OFimSRAg.0gkMAMi_fCS3ioewYFtXhk5d2CIO9HylapXsryLQcuIg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_14_21.png?type=w800"
+        ],
+        "links": []
+      },
+      "comments": []
+    },
+    {
+      "post_id": "223924349009",
+      "title": "양재엘타워 아이폰스냅 솔솔스냅 본식후기",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=223924349009",
+      "metadata": {
+        "views": 0,
+        "likes": 4,
+        "comments": 6,
+        "category": null,
+        "tags": [
+          "웨딩아이폰스냅",
+          "가성비아이폰스냅",
+          "아이폰스냅본식후기",
+          "솔솔스냅짝궁",
+          "솔솔스냅",
+          "서울아이폰스냅"
+        ]
+      },
+      "content": {
+        "text": "드디어 행사를 잘 마치고 왔다는 사실\n그리고 솔솔스냅 미추어 버렸다는 사아실\n전 진짜 강추드림\n사진 정말 너무 괜찮게 찍어주심\n일단 사진부터 보셈\n넘 예쁘게 잘 찍어주셨음!\n일단 이런 사람들한테 추천\n사진 다양하게 보관해서 종종 들여다보는 사람\n정확하게 디렉션된 사진말고 자연스러운 느낌의 사진도 좋아하는 사람\n결혼식장 분위기를 느낄 수 있게 해주는 다양한 각도의 사진을 갖고 싶은 사람\n일반적인 본식스냅은 약간 업체마다업체마다 정해져 있는 구도와 방향성이 있음\n(물론 퀄리티는 좋지만)\n근데 그거에서 좀 벗어난 다양한 걸 찍고 싶으면 추천하는 바\n원하는 구도나 연출을 정확하게 캐치해서 다 찍어주심\n입장을 영상을 원한다면 영상으로 요청도 가능함\n이 이벤트의 주인공 모두가 다 만족하는 서비스였다!\nhttps://www.instagram.com/solsol.snap/\n솔솔스냅•수원아이폰스냅•서울아이폰스냅•안양아이폰스냅(@solsol.snap) • Instagram 사진 및 동영상\n팔로워 345명, 팔로잉 209명, 게시물 72개 - 솔솔스냅•수원아이폰스냅•서울아이폰스냅•안양아이폰스냅(@solsol.snap)님의 Instagram 사진 및 동영상 보기\n#솔솔스냅짝궁\n#가성비아이폰스냅\n#웨딩아이폰스냅\n#아이폰스냅본식후기\n#서울아이폰스냅",
+        "word_count": 123,
+        "images": [
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfMTE3/MDAxNzUxODMyMDA4Njk5.3kchzQZTmwMnSfpktBgoIzjxlxoRIui1aLasEdDHA3Ig.5BF5k-gszZezpgrFqZwuyewV2C4X2oAnFE2bWfwpaVwg.JPEG/P20250621_152346728_06A0FA01-8E33-4B0A-9B7E-EA867899DF7D.JPG?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfNiAg/MDAxNzUxODMyNzA1MTQ2.aVFoDoMkDwTUDdl3skOCTpjxirfJPfGjft_T5TDVw10g.Jx-ucER7iBfIADausUVQaPI-AGtizx6q1r1a3qB4o2sg.JPEG/SE-6e44568a-050a-45ff-9cf5-28401920a273.jpg?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfMjIg/MDAxNzUxODMxOTg5OTI1.kagnSkTp4WrnKZGcpNE4HgF51WJFQHweXIabl9W2r3kg.Y6xgMINF_bHwbNtqgPo0tZoES9K5Wt9VCzO8RV4XNt4g.JPEG/P20250621_132341610_85FF2F4C-E1EA-43DD-AE22-B59A53158211.jpg?type=w80_blur",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfMzgg/MDAxNzUxODMyNzExMDg1.4DxbVnSBcgigc3P1ZodP23xwfXfJUIdSMhN0-jSAQBIg.QexA93cgFQJiZ6N_FmEIh_hlwKHu3-2BsWMQVemMeOAg.JPEG/SE-ad932bb4-e9b2-4df9-a793-a2877ab52342.jpg?type=w80_blur",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfOTcg/MDAxNzUxODMyNzE2MDg1.rkmYC65ctCJaIqHLzcEUfr86IbTDlyR4jqCQp7fHBl8g.103nJnW7AUugwjUVf6EroF7pLcZtOatdaynz8WZmvkcg.JPEG/SE-a7e9d134-14b4-42a1-a2b7-b45f18a3fd45.jpg?type=w80_blur"
+        ],
+        "links": [
+          "https://www.instagram.com/solsol.snap/"
+        ]
+      },
+      "comments": []
+    },
+    {
+      "post_id": "220888708277",
+      "title": "161217 호떡 먹고싶다",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220888708277",
+      "metadata": {
+        "views": 0,
+        "likes": 5,
+        "comments": 49,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "3번째 학기도 끝나가고 있습니다.\n시간 넘나 빠른 듯.\n막 흘러갑니다.",
+        "word_count": 10,
+        "images": [
+          "https://ssl.pstatic.net/static/blog/sp_blog72.png",
+          "https://blogpfthumb-phinf.pstatic.net/20140922_251/skalekd77_1411371878557lzUwo_JPEG/2.jpg?type=s1",
+          "https://mblogthumb-phinf.pstatic.net/MjAxNjEyMThfMTg1/MDAxNDgyMDI4MDEyOTU2.OwqlEbyH48rdUmX7ubhEU7RzidQAPRBsVSuwDp6LGckg.cmzUw_5M6frPBhKhemrytzEejNxQeSDNiogKlcxQtVgg.PNG.skalekd77/160501.png?type=w420",
+          "https://mblogthumb-phinf.pstatic.net/MjAxNjEyMThfODkg/MDAxNDgyMDI4MDEzNzA0.vyGughRw7rBjx8gP4vH2XlGhyXoH68kS3HJa1An8jyYg.YsOF4I43AaFt_PSXcb80eDH6NxWK_tSp_lASLAna4h0g.PNG.skalekd77/161211.png?type=w420",
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        ],
+        "links": [
+          "https://m.blog.naver.com/#",
+          "https://m.blog.naver.com/News.naver",
+          "https://m.blog.naver.com/GoMyBuddyList.naver",
+          "https://m.blog.naver.com/BlogStat.naver",
+          "https://m.blog.naver.com/CheckIn.naver",
+          "https://m.blog.naver.com/ReadHistoryList.naver",
+          "https://m.blog.naver.com/MyVideo.naver",
+          "https://m.blog.naver.com/ClipList.naver",
+          "https://m.blog.naver.com/MarketPlace.naver",
+          "https://m.blog.naver.com/Cart.naver",
+          "https://new-m.pay.naver.com/historybenefit/paymenthistory",
+          "https://m.blog.naver.com/PostList.naver?blogId=blogpeople",
+          "https://m.blog.naver.com/PopularBlog.naver",
+          "https://m.blog.naver.com/OfficialBlog.naver",
+          "https://blog.naver.com/skalekd77/220888708277?viewType=pc",
+          "https://help.naver.com/alias/blog/etc/bl_code_01.naver",
+          "https://www.navercorp.com",
+          "https://m.blog.naver.com/#ct",
+          "https://m.blog.naver.com/Recommendation.naver",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostSearchList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77&categoryNo=25&logCode=0&categoryName=Most+important#postlist_block",
+          "https://m.blog.naver.com/javascript:;",
+          "https://m.blog.naver.com/#ratingbutton-like",
+          "https://m.blog.naver.com/#ratingbutton-impressive",
+          "https://m.blog.naver.com/#ratingbutton-thanks",
+          "https://m.blog.naver.com/#ratingbutton-haha",
+          "https://m.blog.naver.com/#ratingbutton-wow",
+          "https://m.blog.naver.com/#ratingbutton-sad",
+          "https://m.blog.naver.com/skalekd77",
+          "https://m.blog.naver.com/javascript:void(0);"
+        ]
+      },
+      "comments": []
+    },
+    {
+      "post_id": "224054238709",
+      "title": "고소한 샐러드",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=224054238709",
+      "metadata": {
+        "views": 0,
+        "likes": 2,
+        "comments": 1,
+        "category": null,
+        "tags": [
+          "믹스넛",
+          "초간단요리",
+          "요리레시피",
+          "다이어트식단",
+          "든든한아침",
+          "요거트볼",
+          "건강한한끼",
+          "샐러드레시피",
+          "주부일상"
+        ]
+      },
+      "content": {
+        "text": "오늘은 믹스넛 넣어 고소한 샐러드 만들었어요. 바쁜 아침에 딱이에요.\n하루가 너무 정신없다 보니 아침은 늘 대충 먹게 되더라구요.\n그래서 오늘은\n믹스넛을 넣은 든든한 샐러드\n를 만들어봤어요.\n고소하고 씹는 맛이 있어 포만감도 좋아요.\n상큼한 드레싱만 더하면 완성이라 아침 준비 시간이 훨씬 줄었네요.\n다이어트 중이거나 가벼운 한 끼 필요\n하실 때 추천드려요!\n#요리레시피\n#초간단요리\n#다이어트식단\n#샐러드레시피\n#든든한아침\n#건강한한끼",
+        "word_count": 56,
+        "images": [
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjIg/MDAxNzYxNDU4ODI4NjI3.Dka_7BnsbJJkl-xZzs_RYEv_HrlCVRvmQPIxmHIkRyog.SyTBrWJLEtyT8_FHitJU4_LSeeDHKu3XWOzZ0GjKnfUg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_05_28.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMTUy/MDAxNzYxNDU4ODI5ODg3.30bTiISzjkDqywU_QegiJ_Egktg0fq4V2dZFbLaeIakg.xxwTmGrtyidxq_z_4J91ctrRUw49Y-_PDXka6exiH8Mg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_05_40.png?type=w800",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjY2/MDAxNzYxNDU4ODkzNDkw.UASNeuUpgG_KPKo7PCswqvavm_jr-TBKpXYCEyvFIqgg.S7SRG9XVHovFjwOYuqB3FN2dx_tKeWYdBybe3Cz9UUsg.PNG/ChatGPT_Image_2025%EB%85%84_10%EC%9B%94_26%EC%9D%BC_%EC%98%A4%EC%A0%84_02_07_44.png?type=w80_blur"
+        ],
+        "links": []
+      },
+      "comments": [
+        {
+          "author": "아낌없이 주는 정보",
+          "content": "덕분에 많이 배워갑니다. 감사해요 😊",
+          "date": "2025.10.26. 15:51",
+          "likes": 0
+        }
+      ]
+    },
+    {
+      "post_id": "220136354235",
+      "title": "슈퍼티모입니다!",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220136354235",
+      "metadata": {
+        "views": 0,
+        "likes": 0,
+        "comments": 2,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "Something on you 는 스크랩\nEverything with 는 잡글\nAnything in mind 는 인형\nKuloft는 인형 악세서리, 의상샵 Kuloft의 글\nSupport에는 후원글이 올라옵니다",
+        "word_count": 23,
+        "images": [],
+        "links": [
+          "https://m.blog.naver.com/#"
+        ]
+      },
+      "comments": [
+        {
+          "author": "영원",
+          "content": "이거 어케가져감.../???",
+          "date": "2014.11.4. 23:22",
+          "likes": 0
+        },
+        {
+          "author": "투영",
+          "content": "<p style=\"text-align: center;\" align=\"center\"><a href=\" http://blog.naver.com/skalekd77\" ; target=\"_blank\" class=\"con_link\"><img id=\"se_object_1415151470827\" src=\" http://blogfiles.naver.net/20140929_228/skalekd77_14119858373806M934_GIF/widget.gif\" ; class=\"__se_object\" s_type=\"attachment\" s_subtype=\"photo\" style=\"line-height: 1.5; width: 171px; height: 171px; border-color: rgb(0, 0, 0); rwidth:171px; rheight:171px;\" width=\"171\" height=\"171\" imgqe=\"true\" jsonvalue=\"%7B%7D\" rwidth=\"171px\" rheight=\"171px\"></a></p>",
+          "date": "2014.11.5. 10:36",
+          "likes": 0
+        }
+      ]
+    },
+    {
+      "post_id": "220653394281",
+      "title": "160312 오늘자 낙서",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220653394281",
+      "metadata": {
+        "views": 0,
+        "likes": 2,
+        "comments": 0,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "오늘자 낙서\n낙서는 역시 칠판에\n아직 블챌 참여 전이라고요?\n지금 참여해도\n스티커 드립니다\n151218 O neul ja, 30 bun\n151206 O neul ja, nak seo\n고소한 견과류 주먹밥\n든든 요거트볼\n양재엘타워 아이폰스냅 솔솔스냅 본식후기\n고소한 샐러드",
+        "word_count": 36,
+        "images": [
+          "https://ssl.pstatic.net/static/blog/sp_blog72.png",
+          "https://blogpfthumb-phinf.pstatic.net/20140922_251/skalekd77_1411371878557lzUwo_JPEG/2.jpg?type=s1",
+          "https://mblogthumb-phinf.pstatic.net/20160313_232/skalekd77_14578253750805wUUY_JPEG/20160310_232434.jpg?type=w420",
+          "https://ssl.pstatic.net/static/blog/blank.gif",
+          "https://mblogthumb-phinf.pstatic.net/MjAxNjEyMThfMTg1/MDAxNDgyMDI4MDEyOTU2.OwqlEbyH48rdUmX7ubhEU7RzidQAPRBsVSuwDp6LGckg.cmzUw_5M6frPBhKhemrytzEejNxQeSDNiogKlcxQtVgg.PNG.skalekd77/160501.png?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/20160313_232/skalekd77_14578253750805wUUY_JPEG/20160310_232434.jpg?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/20151219_300/skalekd77_1450518981883pLw09_PNG/151219.png?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/20151218_14/skalekd77_1450419715473SMV2r_PNG/151217.png?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/20151207_89/skalekd77_1449448380129KEYX0_PNG/151206.png?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjUy/MDAxNzYxNDU5NjkwMzg2.JAAFZaLWHFtDoO32DWo8oaHu24-mikkbz4ZZH2JQ3vgg.FnT9Hg6BxouxJ4NUZXnOQNyLw3NBXnTywKwjDgPYBl8g.PNG/ChatGPT_Image_2025%B3%E2_10%BF%F9_26%C0%CF_%BF%C0%C0%FC_02_18_17.png?type=ffn640_360",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfOTMg/MDAxNzYxNDU5MDk5OTE0.Ge7tlsbaUsnAsCRWPM_nFj4SER-zsIVATKW9-LPKmCMg.LcGO5JmyCcfdcP2_lULVKgZq-CxggZLld7RrAJFlmdAg.PNG/ChatGPT_Image_2025%B3%E2_10%BF%F9_26%C0%CF_%BF%C0%C0%FC_02_10_31.png?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTA3MDdfMjIg/MDAxNzUxODMxOTg5OTI1.kagnSkTp4WrnKZGcpNE4HgF51WJFQHweXIabl9W2r3kg.Y6xgMINF_bHwbNtqgPo0tZoES9K5Wt9VCzO8RV4XNt4g.JPEG/P20250621_132341610_85FF2F4C-E1EA-43DD-AE22-B59A53158211.jpg?type=ffn300_300",
+          "https://mblogthumb-phinf.pstatic.net/MjAyNTEwMjZfMjIg/MDAxNzYxNDU4ODI4NjI3.Dka_7BnsbJJkl-xZzs_RYEv_HrlCVRvmQPIxmHIkRyog.SyTBrWJLEtyT8_FHitJU4_LSeeDHKu3XWOzZ0GjKnfUg.PNG/ChatGPT_Image_2025%B3%E2_10%BF%F9_26%C0%CF_%BF%C0%C0%FC_02_05_28.png?type=ffn300_300",
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        ],
+        "links": [
+          "https://m.blog.naver.com/#",
+          "https://m.blog.naver.com/News.naver",
+          "https://m.blog.naver.com/GoMyBuddyList.naver",
+          "https://m.blog.naver.com/BlogStat.naver",
+          "https://m.blog.naver.com/CheckIn.naver",
+          "https://m.blog.naver.com/ReadHistoryList.naver",
+          "https://m.blog.naver.com/MyVideo.naver",
+          "https://m.blog.naver.com/ClipList.naver",
+          "https://m.blog.naver.com/MarketPlace.naver",
+          "https://m.blog.naver.com/Cart.naver",
+          "https://new-m.pay.naver.com/historybenefit/paymenthistory",
+          "https://m.blog.naver.com/PostList.naver?blogId=blogpeople",
+          "https://m.blog.naver.com/PopularBlog.naver",
+          "https://m.blog.naver.com/OfficialBlog.naver",
+          "https://blog.naver.com/skalekd77/220653394281?viewType=pc",
+          "https://help.naver.com/alias/blog/etc/bl_code_01.naver",
+          "https://www.navercorp.com",
+          "https://m.blog.naver.com/#ct",
+          "https://m.blog.naver.com/Recommendation.naver",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostSearchList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77&categoryNo=25&logCode=0&categoryName=Most+important#postlist_block",
+          "https://m.blog.naver.com/javascript:;",
+          "https://m.blog.naver.com/#ratingbutton-like",
+          "https://m.blog.naver.com/#ratingbutton-impressive",
+          "https://m.blog.naver.com/#ratingbutton-thanks",
+          "https://m.blog.naver.com/#ratingbutton-haha",
+          "https://m.blog.naver.com/#ratingbutton-wow",
+          "https://m.blog.naver.com/#ratingbutton-sad",
+          "https://m.blog.naver.com/skalekd77",
+          "https://event.blog.naver.com/whats-in-my-blog#home",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77&categoryNo=25&logCode=0&tab=1#postlist_block",
+          "https://m.blog.naver.com/skalekd77/220888708277?recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/220573082674?recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/220572102804?recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/220560872946?recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77?anchorBlockType=popularpostlist",
+          "https://m.blog.naver.com/skalekd77/224054257169?recommendCode=2&recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/224054244544?recommendCode=2&recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/223924349009?recommendCode=2&recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/220888708277?recommendCode=2&recommendTrackingCode=2",
+          "https://m.blog.naver.com/skalekd77/224054238709?recommendCode=2&recommendTrackingCode=2",
+          "https://m.blog.naver.com/javascript:void(0);"
+        ]
+      },
+      "comments": []
+    },
+    {
+      "post_id": "220573082674",
+      "title": "151219 오늘자 30분",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220573082674",
+      "metadata": {
+        "views": 0,
+        "likes": 1,
+        "comments": 0,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "긱사에서 내컴으로 포스팅하는 건 좋다\n나눔바른고딕도 쓸 수 있다",
+        "word_count": 9,
+        "images": [
+          "https://ssl.pstatic.net/static/blog/sp_blog72.png",
+          "https://blogpfthumb-phinf.pstatic.net/20140922_251/skalekd77_1411371878557lzUwo_JPEG/2.jpg?type=s1",
+          "https://mblogthumb-phinf.pstatic.net/20151219_300/skalekd77_1450518981883pLw09_PNG/151219.png?type=w420",
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        ],
+        "links": [
+          "https://m.blog.naver.com/#",
+          "https://m.blog.naver.com/News.naver",
+          "https://m.blog.naver.com/GoMyBuddyList.naver",
+          "https://m.blog.naver.com/BlogStat.naver",
+          "https://m.blog.naver.com/CheckIn.naver",
+          "https://m.blog.naver.com/ReadHistoryList.naver",
+          "https://m.blog.naver.com/MyVideo.naver",
+          "https://m.blog.naver.com/ClipList.naver",
+          "https://m.blog.naver.com/MarketPlace.naver",
+          "https://m.blog.naver.com/Cart.naver",
+          "https://new-m.pay.naver.com/historybenefit/paymenthistory",
+          "https://m.blog.naver.com/PostList.naver?blogId=blogpeople",
+          "https://m.blog.naver.com/PopularBlog.naver",
+          "https://m.blog.naver.com/OfficialBlog.naver",
+          "https://blog.naver.com/skalekd77/220573082674?viewType=pc",
+          "https://help.naver.com/alias/blog/etc/bl_code_01.naver",
+          "https://www.navercorp.com",
+          "https://m.blog.naver.com/#ct",
+          "https://m.blog.naver.com/Recommendation.naver",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostSearchList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77&categoryNo=25&logCode=0&categoryName=Most+important#postlist_block",
+          "https://m.blog.naver.com/javascript:;",
+          "https://m.blog.naver.com/#ratingbutton-like",
+          "https://m.blog.naver.com/#ratingbutton-impressive",
+          "https://m.blog.naver.com/#ratingbutton-thanks",
+          "https://m.blog.naver.com/#ratingbutton-haha",
+          "https://m.blog.naver.com/#ratingbutton-wow",
+          "https://m.blog.naver.com/#ratingbutton-sad",
+          "https://m.blog.naver.com/skalekd77",
+          "https://m.blog.naver.com/javascript:void(0);"
+        ]
+      },
+      "comments": []
+    },
+    {
+      "post_id": "220572102804",
+      "title": "151218 O neul ja, 30 bun",
+      "author": {
+        "blog_id": "skalekd77",
+        "nickname": "skalekd77"
+      },
+      "published_date": "",
+      "modified_date": null,
+      "url": "https://m.blog.naver.com/PostView.naver?blogId=skalekd77&logNo=220572102804",
+      "metadata": {
+        "views": 0,
+        "likes": 1,
+        "comments": 4,
+        "category": null,
+        "tags": []
+      },
+      "content": {
+        "text": "151218 O neul ja, 30 bun\nO neul do han guel an cheo jim",
+        "word_count": 14,
+        "images": [
+          "https://ssl.pstatic.net/static/blog/sp_blog72.png",
+          "https://blogpfthumb-phinf.pstatic.net/20140922_251/skalekd77_1411371878557lzUwo_JPEG/2.jpg?type=s1",
+          "https://mblogthumb-phinf.pstatic.net/20151218_14/skalekd77_1450419715473SMV2r_PNG/151217.png?type=w420",
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        ],
+        "links": [
+          "https://m.blog.naver.com/#",
+          "https://m.blog.naver.com/News.naver",
+          "https://m.blog.naver.com/GoMyBuddyList.naver",
+          "https://m.blog.naver.com/BlogStat.naver",
+          "https://m.blog.naver.com/CheckIn.naver",
+          "https://m.blog.naver.com/ReadHistoryList.naver",
+          "https://m.blog.naver.com/MyVideo.naver",
+          "https://m.blog.naver.com/ClipList.naver",
+          "https://m.blog.naver.com/MarketPlace.naver",
+          "https://m.blog.naver.com/Cart.naver",
+          "https://new-m.pay.naver.com/historybenefit/paymenthistory",
+          "https://m.blog.naver.com/PostList.naver?blogId=blogpeople",
+          "https://m.blog.naver.com/PopularBlog.naver",
+          "https://m.blog.naver.com/OfficialBlog.naver",
+          "https://blog.naver.com/skalekd77/220572102804?viewType=pc",
+          "https://help.naver.com/alias/blog/etc/bl_code_01.naver",
+          "https://www.navercorp.com",
+          "https://m.blog.naver.com/#ct",
+          "https://m.blog.naver.com/Recommendation.naver",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostSearchList.naver?blogId=skalekd77",
+          "https://m.blog.naver.com/PostList.naver?blogId=skalekd77&categoryNo=25&logCode=0&categoryName=Most+important#postlist_block",
+          "https://m.blog.naver.com/javascript:;",
+          "https://m.blog.naver.com/#ratingbutton-like",
+          "https://m.blog.naver.com/#ratingbutton-impressive",
+          "https://m.blog.naver.com/#ratingbutton-thanks",
+          "https://m.blog.naver.com/#ratingbutton-haha",
+          "https://m.blog.naver.com/#ratingbutton-wow",
+          "https://m.blog.naver.com/#ratingbutton-sad",
+          "https://m.blog.naver.com/skalekd77",
+          "https://m.blog.naver.com/javascript:void(0);"
+        ]
+      },
+      "comments": [
+        {
+          "author": "고폭탄",
+          "content": "윈도우에 설정하는 법이 있을텐데요;;;\n글구 미구까지 가셨는데 잉글리쉬 하세요 ㅋㅋㅋㅋ",
+          "date": "2015.12.18. 18:24",
+          "likes": 0
+        },
+        {
+          "author": "투영",
+          "content": "저거 나름 잉그리쉬이지말입니다 윈도우는 변경이되는데 맥은 시스템 프리퍼런스에서 뭐 할라카면 관리자 계정쓰라네여...",
+          "date": "2015.12.19. 18:54",
+          "likes": 0
+        }
+      ]
+    }
+  ]
+}

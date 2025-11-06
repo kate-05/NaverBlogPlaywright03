@@ -225,12 +225,24 @@ def crawl_multiple_blog_ids(
             blog_progress["error"] = str(e)
             job_data["failed_blog_ids"] += 1
         
-        # 블로그 진행 상황 업데이트
+        # 블로그 진행 상황 업데이트 (기존 항목 찾아서 업데이트)
         if "blog_progress" not in job_data:
             job_data["blog_progress"] = []
-        job_data["blog_progress"].append(blog_progress)
         
-        # 체크포인트 중간 저장
+        # 기존 블로그 진행 상황 찾기
+        existing_index = None
+        for idx, bp in enumerate(job_data["blog_progress"]):
+            if bp.get("blog_id") == blog_id:
+                existing_index = idx
+                break
+        
+        # 기존 항목이 있으면 업데이트, 없으면 추가
+        if existing_index is not None:
+            job_data["blog_progress"][existing_index] = blog_progress
+        else:
+            job_data["blog_progress"].append(blog_progress)
+        
+        # 체크포인트 중간 저장 (재개 모드에서도 갱신)
         checkpoint_manager.save_checkpoint(job_data, all_posts[-100:] if all_posts else [])
         
         # should_stop 확인 (블로그 크롤링 후)

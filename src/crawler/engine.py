@@ -854,6 +854,11 @@ def crawl_by_blog_id(
                 if progress_callback:
                     progress_callback(current_idx, total_urls)
                 
+                # progress_callback 후 should_stop 확인 (중단 요청 확인)
+                if should_stop and should_stop():
+                    print(f"[경고] 크롤링이 중단되었습니다. ({current_idx}/{total_urls})")
+                    break
+                
                 post = crawl_post_detail_mobile(page, post_url, timeout, blog_id)
                 posts.append(post)
                 
